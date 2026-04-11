@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso Admin · Tenis del Norte</title>
+  <link rel="stylesheet" href="../styles/global.css"/>
+  <link rel="stylesheet" href="../styles/admin.css"/>
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-container">
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <img src="../assets/logo.png" alt="Tenis del Norte" class="login-logo-img"
+             onerror="this.outerHTML='<div class=&quot;login-logo-badge&quot;>TN</div>'"/>
+        <h1>TENIS <span>DEL NORTE</span></h1>
+        <p>Panel de administración</p>
+      </div>
+
+      <h2>INICIAR SESIÓN</h2>
+
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" name="usuario"
+               placeholder="Tu usuario" autocomplete="username" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="login-pass-wrap">
+          <input type="password" id="password" name="password"
+                 placeholder="••••••••" autocomplete="current-password" required/>
+          <button type="button" class="toggle-pass" id="togglePass"
+                  aria-label="Ver contraseña">👁</button>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btnLogin">Entrar al panel</button>
+
+      <div class="error" id="loginError"></div>
+
+    </div>
+  </div>
+
+  <script src="../js/login.js"></script>
+</body>
+</html>

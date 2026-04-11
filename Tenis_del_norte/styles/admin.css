@@ -1,0 +1,580 @@
+/* ═══════════════════════════════════════════════════
+   admin.css — Estilos del panel de administración
+   Requiere: global.css
+═══════════════════════════════════════════════════ */
+
+/* ── HEADER ADMIN ────────────────────────────────── */
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 0 28px;
+  min-height: var(--nav-h);
+  flex-wrap: wrap;                        /* permite saltar a 2 líneas si es necesario */
+  background: rgba(20, 35, 75, 0.97);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+
+/* ── Logo admin (idéntico al nav público) ────────── */
+.admin-logo-link {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; flex-shrink: 0;
+}
+.admin-logo-img {
+  width: 36px; height: 36px;
+  object-fit: contain; display: block; flex-shrink: 0;
+}
+.admin-logo-text {
+  font-family: var(--font-d); font-size: 20px;
+  letter-spacing: 2px; color: var(--white); white-space: nowrap;
+}
+.admin-logo-text span { color: var(--gold); }
+
+/* Pill "Admin" junto al nombre */
+.admin-badge {
+  background: rgba(245,197,24,0.15);
+  border: 1px solid rgba(245,197,24,0.3);
+  color: var(--gold);
+  font-family: var(--font-b); font-size: 10px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 100px;
+  flex-shrink: 0;
+}
+
+/* ── Derecha del header ──────────────────────────── */
+.admin-header-right {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.back-link {
+  color: var(--muted); font-size: 11px; font-weight: 700;
+  text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 8px; transition: all 0.2s;
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+.back-link:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ── Botón cerrar sesión ─────────────────────────── */
+.btn-logout {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,77,109,0.1);
+  border: 1px solid rgba(255,77,109,0.25);
+  color: var(--red);
+  font-family: var(--font-b); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 8px;
+  text-decoration: none; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-logout::before { content: '⏻'; font-size: 13px; }
+.btn-logout:hover {
+  background: rgba(255,77,109,0.2);
+  border-color: var(--red);
+  transform: translateY(-1px);
+}
+
+/* ── Header responsive ───────────────────────────── */
+@media (max-width: 860px) {
+  .admin-badge { display: none; }           /* ocultar pill "Admin" */
+}
+@media (max-width: 680px) {
+  .admin-header { padding: 0 16px; }
+  .admin-logo-text { font-size: 16px; letter-spacing: 1px; }
+  .back-link { display: none; }             /* solo queda "Cerrar sesión" */
+}
+@media (max-width: 420px) {
+  .admin-logo-text { display: none; }       /* solo logo imagen en pantallas muy pequeñas */
+  .admin-logo-link { gap: 0; }
+  .btn-logout { padding: 7px 10px; font-size: 10px; }
+}
+
+/* ── LAYOUT ──────────────────────────────────────── */
+.admin-body {
+  max-width: 1200px; margin: 0 auto;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px; align-items: start;
+}
+@media (max-width: 960px) { .admin-body { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .admin-body { padding: 16px 12px; gap: 16px; } }
+
+/* ── TARJETA ADMIN ───────────────────────────────── */
+.a-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  position: relative; z-index: 1;
+  min-width: 0;                     /* evita desbordamiento en grid */
+}
+@media (max-width: 480px) {
+  .a-card { padding: 20px 16px; border-radius: 12px; }
+}
+.a-card h2 {
+  font-family: var(--font-d); font-size: 20px;
+  letter-spacing: 2px; color: var(--gold); margin-bottom: 24px;
+}
+
+/* ── FORMULARIO ──────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row > * { min-width: 0; }
+@media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+
+.form-group label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--muted); margin-bottom: 7px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  color: var(--white);
+  padding: 12px 14px; border-radius: 10px;
+  font-family: var(--font-b); font-size: 14px; font-weight: 500;
+  outline: none; transition: border-color 0.2s;
+}
+input[type="text"]:focus,
+select:focus { border-color: var(--gold); }
+select option { background: var(--navy); color: var(--white); }
+
+/* ── FILE DROP ───────────────────────────────────── */
+.file-drop {
+  border: 2px dashed rgba(245,197,24,0.25);
+  border-radius: 12px; padding: 28px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+@media (max-width: 480px) {
+  .file-drop { padding: 20px 16px; }
+}
+.file-drop:hover,
+.file-drop.drag-over {
+  border-color: var(--gold);
+  background: rgba(245,197,24,0.04);
+}
+.file-drop input[type="file"] {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.file-drop-icon { font-size: 36px; margin-bottom: 8px; }
+.file-drop p { font-size: 13px; color: var(--muted); }
+.file-drop p span { color: var(--gold); font-weight: 700; }
+#previewImg {
+  max-width: 100%; border-radius: 10px;
+  margin-top: 12px; display: none;
+  border: 2px solid var(--border);
+}
+
+/* ── INFO BOX ────────────────────────────────────── */
+.info-box {
+  background: rgba(245,197,24,0.05);
+  border: 1px solid rgba(245,197,24,0.2);
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
+}
+.info-box p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.info-box strong { color: var(--gold); }
+
+/* ── TOGGLE PROMO ────────────────────────────────── */
+.toggle-row   { display: flex; align-items: center; gap: 14px; }
+.toggle-switch {
+  position: relative; width: 48px; height: 26px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px; cursor: pointer; transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 20px; height: 20px;
+  background: var(--muted); border-radius: 50%;
+  left: 3px; top: 3px; transition: all 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: rgba(245,197,24,0.2); }
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(22px); background: var(--gold);
+}
+.toggle-label { font-size: 13px; color: var(--muted); }
+
+/* ── BOTÓN SUBMIT ────────────────────────────────── */
+.btn-submit {
+  width: 100%; padding: 15px;
+  background: var(--gold); color: var(--navy);
+  border: none; border-radius: 100px;
+  font-family: var(--font-b); font-size: 15px; font-weight: 800;
+  cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+  transition: all 0.2s; margin-top: 8px;
+}
+.btn-submit:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245,197,24,0.3);
+}
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── FEEDBACK ────────────────────────────────────── */
+.feedback {
+  margin-top: 12px; padding: 12px 16px;
+  border-radius: 10px; font-size: 13px; font-weight: 600;
+  display: none;
+}
+.feedback.ok  {
+  background: rgba(37,211,102,0.1);
+  border: 1px solid rgba(37,211,102,0.3); color: var(--green);
+}
+.feedback.err {
+  background: rgba(255,77,109,0.1);
+  border: 1px solid rgba(255,77,109,0.3); color: var(--red);
+}
+
+/* ── ESTADÍSTICAS ────────────────────────────────── */
+.admin-stats {
+  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.stat-chip {
+  flex: 1; min-width: 70px;
+  background: rgba(245,197,24,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 8px; text-align: center;
+}
+.stat-chip .n {
+  font-family: var(--font-d); font-size: 28px;
+  color: var(--gold); line-height: 1;
+}
+.stat-chip .l {
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;
+}
+
+/* ── BUSCADOR / FILTROS ADMIN ────────────────────── */
+.admin-filters {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.admin-filters input[type="text"] { flex: 1; min-width: 160px; padding: 10px 14px; }
+.admin-filters select { width: auto; padding: 10px 14px; }
+@media (max-width: 480px) {
+  .admin-filters { flex-direction: column; }
+  .admin-filters input[type="text"],
+  .admin-filters select { width: 100%; min-width: 0; }
+}
+
+/* ── LISTA DE REFERENCIAS ────────────────────────── */
+.zapato-list {
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 680px; overflow-y: auto; padding-right: 4px;
+}
+.zapato-list::-webkit-scrollbar { width: 4px; }
+.zapato-list::-webkit-scrollbar-thumb {
+  background: rgba(245,197,24,0.2); border-radius: 4px;
+}
+
+.zapato-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 10px 12px;
+  transition: border-color 0.2s; flex-wrap: wrap;
+}
+.zapato-row:hover { border-color: rgba(245,197,24,0.2); }
+@media (max-width: 480px) {
+  .zapato-row { padding: 10px; }
+  .row-actions { width: 100%; justify-content: flex-end; }
+  .btn-action { font-size: 11px; padding: 5px 10px; }
+}
+
+.zapato-thumb {
+  width: 52px; height: 52px; object-fit: cover;
+  border-radius: 8px; background: var(--navy-light); flex-shrink: 0;
+}
+.zapato-info { flex: 1; min-width: 0; }
+.z-top {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.z-marca { font-size: 13px; font-weight: 700; }
+.z-ref   { font-size: 11px; color: var(--muted); font-family: monospace; }
+.z-meta  { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.z-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 100px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.z-tag.hombre {
+  background: rgba(79,195,247,0.1); color: #4fc3f7;
+  border: 1px solid rgba(79,195,247,0.25);
+}
+.z-tag.mujer {
+  background: rgba(255,77,109,0.1); color: var(--red);
+  border: 1px solid rgba(255,77,109,0.25);
+}
+.z-tag.unisex {
+  background: rgba(245,197,24,0.1); color: var(--gold);
+  border: 1px solid var(--border);
+}
+.z-tag.promo {
+  background: rgba(255,77,109,0.15); color: var(--red);
+  border: 1px solid rgba(255,77,109,0.25);
+}
+
+/* ── ACCIONES POR FILA ───────────────────────────── */
+.row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn-action {
+  background: none; border: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted); padding: 6px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 12px; font-family: var(--font-b);
+  font-weight: 600; letter-spacing: 0.5px;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-action:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+.btn-action.btn-del:hover { border-color: var(--red); color: var(--red); }
+.btn-action.btn-promo:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── ESTADO VACÍO LISTA ──────────────────────────── */
+.empty-list {
+  text-align: center; color: var(--muted);
+  padding: 40px; font-size: 14px;
+}
+
+/* ── CONFIRMACIÓN MODAL ──────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 20px; padding: 36px; text-align: center;
+  max-width: 380px; width: 100%;
+}
+@media (max-width: 440px) {
+  .modal-box { padding: 28px 20px; border-radius: 16px; }
+  .modal-actions { flex-direction: column; }
+  .btn-cancel, .btn-confirm-del { width: 100%; }
+}
+.modal-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.modal-box h3 {
+  font-family: var(--font-d); font-size: 24px;
+  letter-spacing: 2px; color: var(--white); margin-bottom: 10px;
+}
+.modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
+.btn-cancel {
+  padding: 12px 28px; border-radius: 100px; border: 1px solid var(--border);
+  background: none; color: var(--muted); font-family: var(--font-b);
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.btn-cancel:hover { border-color: var(--white); color: var(--white); }
+.btn-confirm-del {
+  padding: 12px 28px; border-radius: 100px; border: none;
+  background: var(--red); color: #fff; font-family: var(--font-b);
+  font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(255,77,109,0.4);
+}
+.btn-confirm-del:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,77,109,0.5); }
+
+/* ══════════════════════════════════════════════════
+   CAMPOS DE PRECIO
+══════════════════════════════════════════════════ */
+
+input[type="number"] {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  color: var(--white);
+  padding: 12px 14px; border-radius: 10px;
+  font-family: var(--font-b); font-size: 14px; font-weight: 500;
+  outline: none; transition: border-color 0.2s;
+  appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type="number"]:focus { border-color: var(--gold); }
+
+.price-input-wrap {
+  display: flex; align-items: center; gap: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px; overflow: hidden;
+  transition: border-color 0.2s;
+  min-width: 0; width: 100%;
+}
+.price-input-wrap:focus-within { border-color: var(--gold); }
+.price-input-wrap.promo:focus-within { border-color: var(--red); }
+
+.price-symbol {
+  padding: 12px 4px 12px 14px;
+  color: var(--muted); font-size: 14px; font-weight: 700;
+  font-family: var(--font-b); flex-shrink: 0;
+}
+.price-input-wrap input[type="number"] {
+  border: none; background: transparent;
+  padding: 12px 14px 12px 4px; width: 100%;
+}
+.price-input-wrap input[type="number"]:focus { border-color: transparent; }
+
+/* Campo promo con acento rojo */
+.price-input-wrap.promo .price-symbol { color: var(--red); }
+
+/* Grupo precio promo (animado) */
+.promo-price-group {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+.promo-price-group.hidden {
+  display: none;
+}
+
+.promo-label-badge {
+  background: var(--red); color: #fff;
+  font-size: 9px; font-weight: 800; padding: 2px 8px;
+  border-radius: 100px; letter-spacing: 1px; text-transform: uppercase;
+  vertical-align: middle; margin-left: 6px;
+}
+
+.price-hint {
+  font-size: 11px; color: var(--muted);
+  margin-top: 6px; line-height: 1.5; font-style: italic;
+}
+
+/* Precios en filas de la lista */
+.z-precios {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 4px; flex-wrap: wrap;
+}
+.z-precio {
+  font-size: 13px; font-weight: 700; color: var(--white);
+  font-family: var(--font-b);
+}
+.z-precio-original {
+  font-size: 11px; color: var(--muted);
+  text-decoration: line-through; font-family: var(--font-b);
+}
+.z-precio-promo {
+  font-size: 13px; font-weight: 800; color: var(--red);
+  font-family: var(--font-b);
+  text-shadow: 0 0 8px rgba(255,77,109,0.4);
+}
+
+
+/* ══════════════════════════════════════════════════
+   LOGIN — Pantalla de acceso al admin
+   Variables: usa el sistema global (Tema C)
+══════════════════════════════════════════════════ */
+
+.login-page {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  position: relative; z-index: 1;
+}
+
+.login-container {
+  width: 100%; max-width: 420px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 24px 64px rgba(0,0,20,0.5);
+  animation: fadeUp 0.4s ease both;
+}
+
+/* Logo en el login */
+.login-logo {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; margin-bottom: 32px; text-align: center;
+}
+.login-logo-img {
+  width: 72px; height: 72px;
+  object-fit: contain; display: block;
+  filter: drop-shadow(0 0 16px rgba(245,197,24,0.3));
+}
+.login-logo-badge {
+  width: 72px; height: 72px;
+  background: var(--gold);
+  clip-path: polygon(50% 0%,90% 15%,100% 55%,85% 90%,50% 100%,15% 90%,0% 55%,10% 15%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d); font-size: 20px; color: var(--navy);
+}
+.login-logo h1 {
+  font-family: var(--font-d); font-size: 24px;
+  letter-spacing: 2px; color: var(--white); margin-bottom: 2px;
+}
+.login-logo h1 span { color: var(--gold); }
+.login-logo p { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.login-container h2 {
+  font-family: var(--font-d); font-size: 18px;
+  letter-spacing: 2px; text-align: center;
+  color: var(--gold); margin-bottom: 24px;
+}
+
+/* Reutiliza .form-group de admin.css */
+.login-container .form-group label {
+  color: var(--muted);
+}
+.login-container input[type="text"],
+.login-container input[type="password"] {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  color: var(--white);
+  padding: 13px 16px; border-radius: 12px;
+  font-family: var(--font-b); font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.login-container input:focus { border-color: var(--gold); }
+.login-container input::placeholder { color: var(--muted); }
+
+/* Reutiliza .btn-submit de admin.css — ya está bien definido */
+
+.login-container .error {
+  background: rgba(255,77,109,0.1);
+  border: 1px solid rgba(255,77,109,0.3);
+  color: var(--red); border-radius: 10px;
+  padding: 10px 14px; font-size: 13px; font-weight: 600;
+  text-align: center; margin-top: 14px;
+}
+.login-container .error:empty { display: none; }
+/* ── Wrap contraseña con botón ver ──────────────── */
+.login-pass-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.login-pass-wrap input {
+  width: 100%; padding-right: 44px;
+}
+.toggle-pass {
+  position: absolute; right: 12px;
+  background: none; border: none;
+  font-size: 16px; cursor: pointer;
+  color: var(--muted); padding: 4px;
+  line-height: 1; transition: opacity 0.2s;
+}
+.toggle-pass:hover { opacity: 0.7; }
+
+/* ── Botón confirmar logout ──────────────────────── */
+.btn-confirm-logout {
+  padding: 12px 28px; border-radius: 100px; border: none;
+  background: var(--red); color: #fff; font-family: var(--font-b);
+  font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(255,77,109,0.4);
+  text-decoration: none; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+.btn-confirm-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255,77,109,0.5);
+}
