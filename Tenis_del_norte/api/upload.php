@@ -67,14 +67,15 @@ if ($_FILES['foto']['size'] > 8 * 1024 * 1024) {
 $ext       = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
 if ($ext === 'jpg') $ext = 'jpg';
 $filename  = 'tenis_' . uniqid('', true) . '.' . $ext;
-$uploadDir = __DIR__ . '/../uploads/';
+// UPLOADS_PATH y UPLOADS_URL vienen de config.php — rutas absolutas y confiables
+$uploadDir = UPLOADS_PATH;
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
 if (!move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $filename)) {
-    echo json_encode(['success'=>false,'message'=>'Error al guardar la imagen en el servidor.']); exit;
+    echo json_encode(['success'=>false,'message'=>'Error al guardar la imagen. Verifica permisos de la carpeta uploads/ (debe ser 755).']); exit;
 }
 
-$imagen_url = 'uploads/' . $filename;
+$imagen_url = 'uploads/' . $filename;   // relativa al dominio
 
 // ── Insertar en BD ────────────────────────────────────
 try {
