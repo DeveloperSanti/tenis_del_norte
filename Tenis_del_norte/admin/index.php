@@ -11,6 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin · Tenis del Norte</title>
+  <link rel="icon" href="/assets/favicon.ico">
   <link rel="stylesheet" href="../styles/global.css"/>
   <link rel="stylesheet" href="../styles/admin.css"/>
 </head>
@@ -18,14 +19,14 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
   <header class="admin-header">
     <!-- Logo idéntico al nav principal -->
-    <a href="../index.html" class="admin-logo-link">
+    <a href="../index" class="admin-logo-link">
       <img src="../assets/logo.png" alt="Tenis del Norte" class="admin-logo-img"/>
       <span class="admin-logo-text">TENIS <span>DEL NORTE</span></span>
       <span class="admin-badge">Admin</span>
     </a>
 
     <div class="admin-header-right">
-      <a href="../index.html" class="back-link">← Ver sitio</a>
+      <a href="../index" class="back-link">← Ver sitio</a>
       <button class="btn-logout" id="btnLogout" type="button">
         Cerrar sesión
       </button>
@@ -61,7 +62,33 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
             <option value="Jordan">Jordan</option>
             <option value="Reebok">Reebok</option>
             <option value="Vans">Vans</option>
+            <option value="Armani">Armani</option>
+            <option value="Asics">Asics</option>
             <option value="Converse">Converse</option>
+            <option value="Bape">Bape</option>
+            <option value="Calvin Klein">Calvin Klein</option>
+            <option value="Coach">Coach</option>
+            <option value="CQ">CQ</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Dolce Gabbana">Dolce Gabbana</option>
+            <option value="Fila">Fila</option>
+            <option value="Gucci">Gucci</option>
+            <option value="Hoka">Hoka</option>
+            <option value="Jordan">Jordan</option>
+            <option value="Le Coq Sportif">Le Coq Sportif</option>
+            <option value="Louis Vuitton">Louis Vuitton</option>
+            <option value="Off White">Off White</option>
+            <option value="Skechers">Skechers</option>
+            <option value="Timberland">Timberland</option>
+            <option value="Valentino">Valentino</option>
+            <option value="Alexander Mcqueen">Alexander Mcqueen</option>
+            <option value="Guayos">Guayos</option>
+            <option value="Hugo Boss">Hugo Boss</option>
+            <option value="Hunder Armour">Hunder Armour</option>
+            <option value="Lacoste">Lacoste</option>
+            <option value="Polo">Polo</option>
+            <option value="Vans">Vans</option>
+            <option value="Tommy Hilfiger">Vans</option>
             <option value="Otra">Otra</option>
           </select>
         </div>

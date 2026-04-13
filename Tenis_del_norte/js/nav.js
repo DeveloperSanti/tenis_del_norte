@@ -15,9 +15,9 @@ function getActivePage() {
   const path = window.location.pathname;
   const hash = window.location.hash;
 
-  if (path.endsWith('index.html') || path === '/' || path.endsWith('/')) return 'catalogo';
+  if (path.endsWith('/') || path === '/' || path.endsWith('/')) return 'catalogo';
   
-  // Si estamos en inicio.html, verificamos el hash
+  // Si estamos en inicio, verificamos el hash
   if (path.includes('inicio')) {
     if (hash === '#como') return 'como';
     if (hash === '#pagos') return 'pagos';
@@ -33,16 +33,16 @@ function injectNav() {
   const nav = document.createElement('nav');
   nav.className = 'nav';
   nav.innerHTML = `
-    <a href="index.html" class="nav-logo">
+    <a href="index" class="nav-logo">
       <img src="${LOGO}" alt="TN" class="nav-logo-img"/>
       <span class="nav-logo-text">TENIS <span>DEL NORTE</span></span>
     </a>
 
     <ul class="nav-links">
-      <li><a href="index.html"      ${active==='catalogo' ?'class="active"':''}     >Catálogo</a></li>
-      <li><a href="inicio.html#inicio" ${active==='inicio' ?'class="active"':''}    >Quiénes somos</a></li>
-      <li><a href="inicio.html#como" ${active==='como' ?'class="active"':''}        >Cómo comprar</a></li>
-      <li><a href="inicio.html#pagos" ${active==='pagos' ?'class="active"':''}      >Pagos</a></li>
+      <li><a href="index"      ${active==='catalogo' ?'class="active"':''}     >Catálogo</a></li>
+      <li><a href="inicio#inicio" ${active==='inicio' ?'class="active"':''}    >Quiénes somos</a></li>
+      <li><a href="inicio#como" ${active==='como' ?'class="active"':''}        >Cómo comprar</a></li>
+      <li><a href="inicio#pagos" ${active==='pagos' ?'class="active"':''}      >Pagos</a></li>
     </ul>
 
     <div class="nav-right">
@@ -70,10 +70,10 @@ function injectNav() {
         <button class="nav-drawer-close" id="navDrawerClose" aria-label="Cerrar menú">✕</button>
       </div>
       <ul class="nav-drawer-links">
-        <li><a href="index.html"      ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
-        <li><a href="inicio.html#inicio"                                              >Quiénes somos</a></li>
-        <li><a href="inicio.html#como"                                                >Cómo comprar</a></li>
-        <li><a href="inicio.html#pagos"                                               >Pagos</a></li>
+        <li><a href="index"      ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
+        <li><a href="inicio#inicio"                                              >Quiénes somos</a></li>
+        <li><a href="inicio#como"                                                >Cómo comprar</a></li>
+        <li><a href="inicio#pagos"                                               >Pagos</a></li>
       </ul>
       <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener"
          class="btn-wa nav-drawer-wa">
@@ -144,10 +144,10 @@ function injectFooter() {
       <!-- Links -->
       <nav class="footer-nav">
         <ul class="nav-links-footer">
-          <li><a href="index.html">Catálogo</a></li>
-          <li><a href="inicio.html#inicio">Quiénes somos</a></li>
-          <li><a href="inicio.html#como">Cómo comprar</a></li>
-          <li><a href="inicio.html#pagos">Pagos</a></li>
+          <li><a href="index">Catálogo</a></li>
+          <li><a href="inicio#inicio">Quiénes somos</a></li>
+          <li><a href="inicio#como">Cómo comprar</a></li>
+          <li><a href="inicio#pagos">Pagos</a></li>
         </ul>
       </nav>
 
@@ -199,7 +199,7 @@ window.addEventListener('hashchange', () => {
     // Si el link contiene el hash activo o es el index
     if (href.includes(window.location.hash) && window.location.hash !== '') {
         link.classList.add('active');
-    } else if (active === 'catalogo' && href.includes('index.html')) {
+    } else if (active === 'catalogo' && href.includes('index')) {
         link.classList.add('active');
     } else {
         link.classList.remove('active');
