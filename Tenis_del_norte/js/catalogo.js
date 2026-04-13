@@ -135,7 +135,7 @@ function render() {
       <span class="emoji">👟</span>
       <p>No hay tenis que coincidan con tu búsqueda.</p>
       <p style="font-size:13px;margin-top:10px;color:var(--muted)">
-        Prueba con otra marca.
+        Prueba con otra marca o referencia.
       </p>`;
     resultsEl.innerHTML = `<span>0</span> resultados`;
     if (loadMoreWrap) loadMoreWrap.classList.add('hidden');
@@ -148,16 +148,9 @@ function render() {
 
   slice.forEach((item, i) => gallery.appendChild(buildCard(item, i)));
 
-  /* Botón cargar más */
+  /* Spinner de carga infinita — visible si quedan más items */
   if (loadMoreWrap) {
-    if (visibleCount < all.length) {
-      loadMoreWrap.classList.remove('hidden');
-      const remaining = all.length - visibleCount;
-      const next      = Math.min(pageSize(), remaining);
-      if (loadMoreBtn) loadMoreBtn.textContent = `Cargar ${next} más (quedan ${remaining})`;
-    } else {
-      loadMoreWrap.classList.add('hidden');
-    }
+    loadMoreWrap.classList.toggle('hidden', visibleCount >= all.length);
   }
 }
 
@@ -191,6 +184,7 @@ function buildCard(item, index) {
   const showUnisex = item.categoria === 'unisex' && currentCat !== 'promo';
 
   card.innerHTML = `
+    <span class="badge-id">#${item.id}</span>
     ${item.promocion == 1 ? '<span class="badge-promo">⚡ PROMO</span>' : ''}
     ${showUnisex           ? '<span class="badge-unisex">UNISEX</span>' : ''}
     <img src="${imgSrc}" alt="${item.marca} ${item.referencia}" loading="lazy"/>
@@ -294,26 +288,26 @@ function initFilters() {
     resetAndRender();
   });
 
-  /* Cargar más */
-  loadMoreBtn?.addEventListener('click', () => {
-    visibleCount += pageSize();
-    render();
-    /* Scroll suave hasta las nuevas tarjetas */
-    const cards = gallery.querySelectorAll('.card');
-    if (cards.length) {
-      const newStart = cards[visibleCount - pageSize()] || cards[cards.length - 1];
-      newStart?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
+  /* ── Infinite scroll con IntersectionObserver ───── */
+  const sentinel = document.getElementById('infiniteSentinel');
+  if (sentinel) {
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        const all = getFiltered();
+        if (visibleCount < all.length) {
+          visibleCount += pageSize();
+          render();
+        }
+      }
+    }, { rootMargin: '200px' });
+    io.observe(sentinel);
+  }
 
   /* Actualizar paginación al redimensionar */
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      /* Si cambió entre móvil/desktop, recalcular */
-      render();
-    }, 200);
+    resizeTimer = setTimeout(() => { render(); }, 200);
   });
 }
 
@@ -376,7 +370,7 @@ function fillLightbox(item) {
   lbImg.classList.remove('zoomed');
 
   lbMarca.textContent = item.marca.toUpperCase();
-  lbRef.textContent   = `Ref: ${item.referencia}`;
+  lbRef.textContent   = `Ref: ${item.referencia}  ·  #${item.id}`;
 
   if (lbPrice) lbPrice.innerHTML = buildPriceHTML(item, 'large');
 
@@ -416,12 +410,31 @@ lbNext.addEventListener('click', () => {
 });
 
 lbImgWrap.addEventListener('click', e => {
-  if (e.target === lbImg) lbImg.classList.toggle('zoomed');
+  if (e.target !== lbImg) return;
+  const zooming = !lbImg.classList.contains('zoomed');
+  lbImg.classList.toggle('zoomed');
+  /* Ocultar/mostrar flechas y bloquear cursor según zoom */
+  lbPrev.style.display = zooming ? 'none' : '';
+  lbNext.style.display = zooming ? 'none' : '';
+  lbImgWrap.style.cursor = zooming ? 'zoom-out' : 'zoom-in';
 });
 
 document.addEventListener('keydown', e => {
   if (lightbox.classList.contains('hidden')) return;
-  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'Escape') {
+    if (lbImg.classList.contains('zoomed')) {
+      /* Primero deszoomar antes de cerrar */
+      lbImg.classList.remove('zoomed');
+      lbPrev.style.display = '';
+      lbNext.style.display = '';
+      lbImgWrap.style.cursor = 'zoom-in';
+    } else {
+      closeLightbox();
+    }
+    return;
+  }
+  /* Flechas solo funcionan sin zoom */
+  if (lbImg.classList.contains('zoomed')) return;
   if (e.key === 'ArrowLeft')  lbPrev.click();
   if (e.key === 'ArrowRight') lbNext.click();
 });
@@ -429,6 +442,8 @@ document.addEventListener('keydown', e => {
 let touchStartX = 0;
 lightbox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
 lightbox.addEventListener('touchend',   e => {
+  /* Swipe bloqueado cuando imagen está ampliada */
+  if (lbImg.classList.contains('zoomed')) return;
   const diff = touchStartX - e.changedTouches[0].clientX;
   if (Math.abs(diff) > 50) diff > 0 ? lbNext.click() : lbPrev.click();
 });

@@ -13,16 +13,10 @@ const LOGO = 'assets/logo.png';
 
 function getActivePage() {
   const path = window.location.pathname;
-  const hash = window.location.hash;
-
-  if (path.endsWith('/') || path === '/' || path.endsWith('/')) return 'catalogo';
-  
-  // Si estamos en inicio, verificamos el hash
-  if (path.includes('inicio')) {
-    if (hash === '#como') return 'como';
-    if (hash === '#pagos') return 'pagos';
-    return 'inicio'; // Por defecto Quiénes somos
-  }
+  // index.html / raíz = catálogo (es la página principal)
+  if (path.endsWith('index.html') || path === '/' || path.endsWith('/')) return 'catalogo';
+  if (path.includes('inicio'))  return 'inicio';
+  if (path.includes('admin'))   return 'admin';
   return '';
 }
 
@@ -39,10 +33,10 @@ function injectNav() {
     </a>
 
     <ul class="nav-links">
-      <li><a href="index"      ${active==='catalogo' ?'class="active"':''}     >Catálogo</a></li>
-      <li><a href="inicio#inicio" ${active==='inicio' ?'class="active"':''}    >Quiénes somos</a></li>
-      <li><a href="inicio#como" ${active==='como' ?'class="active"':''}        >Cómo comprar</a></li>
-      <li><a href="inicio#pagos" ${active==='pagos' ?'class="active"':''}      >Pagos</a></li>
+      <li><a href="index.html"          ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
+      <li><a href="inicio.html#quienes"                                            >Nosotros</a></li>
+      <li><a href="inicio.html#como"                                               >Cómo comprar</a></li>
+      <li><a href="inicio.html#pagos"                                              >Pagos</a></li>
     </ul>
 
     <div class="nav-right">
@@ -70,10 +64,10 @@ function injectNav() {
         <button class="nav-drawer-close" id="navDrawerClose" aria-label="Cerrar menú">✕</button>
       </div>
       <ul class="nav-drawer-links">
-        <li><a href="index"      ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
-        <li><a href="inicio#inicio"                                              >Quiénes somos</a></li>
-        <li><a href="inicio#como"                                                >Cómo comprar</a></li>
-        <li><a href="inicio#pagos"                                               >Pagos</a></li>
+        <li><a href="index.html"          ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
+        <li><a href="inicio.html#quienes"                                            >Nosotros</a></li>
+        <li><a href="inicio.html#como"                                               >Cómo comprar</a></li>
+        <li><a href="inicio.html#pagos"                                              >Pagos</a></li>
       </ul>
       <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener"
          class="btn-wa nav-drawer-wa">
@@ -144,10 +138,10 @@ function injectFooter() {
       <!-- Links -->
       <nav class="footer-nav">
         <ul class="nav-links-footer">
-          <li><a href="index">Catálogo</a></li>
-          <li><a href="inicio#inicio">Quiénes somos</a></li>
-          <li><a href="inicio#como">Cómo comprar</a></li>
-          <li><a href="inicio#pagos">Pagos</a></li>
+          <li><a href="index.html">Catálogo</a></li>
+          <li><a href="inicio.html#quienes">Nosotros</a></li>
+          <li><a href="inicio.html#como">Cómo comprar</a></li>
+          <li><a href="inicio.html#pagos">Pagos</a></li>
         </ul>
       </nav>
 
@@ -183,26 +177,54 @@ function initScrollReveal() {
 }
 
 /* ── INIT ────────────────────────────────────────── */
+/* ── Anuncio flotante ─────────────────────────────── */
+function injectAnnouncement() {
+  /* No mostrar en el panel admin */
+  if (window.location.pathname.includes('/admin')) return;
+
+  const STORAGE_KEY = 'tdn_announce_v1';
+  const MSG = '🔥 <strong>¡Nuevas referencias disponibles!</strong> Escríbenos por WhatsApp y pregunta por las últimas llegadas.';
+
+  /* Si ya fue cerrado en esta sesión, no mostrar */
+  if (sessionStorage.getItem(STORAGE_KEY) === 'closed') return;
+
+  const bar = document.createElement('div');
+  bar.id = 'announceBar';
+  bar.innerHTML = `
+    <span class="announce-msg">${MSG}</span>
+    <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener" class="announce-cta">
+      Ver ahora
+    </a>
+    <button class="announce-close" id="announceClose" aria-label="Cerrar anuncio">✕</button>
+  `;
+  /* Insertar ANTES del nav para que quede encima */
+  document.body.insertBefore(bar, document.body.firstChild);
+
+  document.getElementById('announceClose')?.addEventListener('click', () => {
+    bar.style.transform = 'translateY(-100%)';
+    setTimeout(() => bar.remove(), 300);
+    sessionStorage.setItem(STORAGE_KEY, 'closed');
+  });
+}
+
+/* ── Botón WA flotante en móvil ───────────────────── */
+function injectWaFloat() {
+  if (window.location.pathname.includes('/admin')) return;
+
+  const btn = document.createElement('a');
+  btn.id        = 'waFloat';
+  btn.href      = `https://wa.me/${WA_NUMBER}`;
+  btn.target    = '_blank';
+  btn.rel       = 'noopener';
+  btn.setAttribute('aria-label', 'Escribir por WhatsApp');
+  btn.innerHTML = WA_SVG;
+  document.body.appendChild(btn);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  injectAnnouncement();
   injectNav();
   injectFooter();
+  injectWaFloat();
   initScrollReveal();
-});
-
-// Escuchar cambios de hash sin recargar la página
-window.addEventListener('hashchange', () => {
-  const links = document.querySelectorAll('.nav-links a, .nav-drawer-links a');
-  const active = getActivePage();
-  
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    // Si el link contiene el hash activo o es el index
-    if (href.includes(window.location.hash) && window.location.hash !== '') {
-        link.classList.add('active');
-    } else if (active === 'catalogo' && href.includes('index')) {
-        link.classList.add('active');
-    } else {
-        link.classList.remove('active');
-    }
-  });
 });

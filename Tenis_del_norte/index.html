@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Catálogo de tenis Tenis del Norte — Hombre, Mujer y Promociones."/>
-  <title>Tenis del Norte · Catálogo</title>
+  <meta name="description" content="Tenis del Norte — Tu tienda de tenis Nike, Adidas, Jordan, Puma y más. Envíos a todo Colombia."/>
+  <title>Tenis del Norte · Tienda de Tenis</title>
   <link rel="icon" href="/assets/favicon.ico">
   <link rel="stylesheet" href="styles/global.css"/>
   <link rel="stylesheet" href="styles/catalogo.css"/>
@@ -21,6 +21,7 @@
          onerror="this.style.display='none'"/>
     <div class="section-label">Catálogo 2026</div>
     <h1 class="section-title">ENCUENTRA TU <span>PAR IDEAL</span></h1>
+    <p class="catalog-subtitle">Nike · Adidas · Jordan · Puma y más. Entrega a todo Colombia.</p>
     <div class="gold-line"></div>
   </div>
 
@@ -102,8 +103,11 @@
   <!-- ══════════════════════════════════════
        CARGAR MÁS
   ══════════════════════════════════════ -->
+  <!-- Sentinel para infinite scroll — invisible, solo detecta llegada al final -->
+  <div id="infiniteSentinel" style="height:1px;"></div>
+  <!-- Spinner de carga infinita -->
   <div class="load-more-wrap hidden" id="loadMoreWrap">
-    <button class="btn-load-more" id="loadMoreBtn">Cargar más</button>
+    <div class="infinite-spinner"><div class="spinner"></div></div>
   </div>
 
   <!-- ══════════════════════════════════════

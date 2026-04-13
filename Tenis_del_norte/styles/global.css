@@ -398,3 +398,76 @@ footer {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50%       { transform: translateX(-50%) translateY(8px); }
 }
+
+/* ══════════════════════════════════════════════════
+   BARRA DE ANUNCIO — aparece encima del nav
+══════════════════════════════════════════════════ */
+#announceBar {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, var(--navy-mid) 0%, #1a3060 50%, var(--navy-mid) 100%);
+  border-bottom: 1px solid rgba(245,197,24,0.25);
+  transition: transform 0.3s ease;
+}
+.announce-msg {
+  font-size: 13px; color: var(--off-white);
+  text-align: center; line-height: 1.5;
+  flex: 1; min-width: 200px;
+}
+.announce-msg strong { color: var(--gold); }
+
+.announce-cta {
+  background: var(--gold); color: var(--navy);
+  font-family: var(--font-b); font-size: 11px; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+  padding: 6px 16px; border-radius: 100px; flex-shrink: 0;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.announce-cta:hover { background: var(--gold-light); transform: scale(1.03); }
+
+.announce-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 14px; padding: 4px 6px;
+  flex-shrink: 0; line-height: 1; border-radius: 4px;
+  transition: color 0.2s;
+}
+.announce-close:hover { color: var(--white); }
+
+@media (max-width: 480px) {
+  #announceBar { gap: 8px; padding: 8px 12px; }
+  .announce-msg { font-size: 12px; }
+}
+
+/* ══════════════════════════════════════════════════
+   BOTÓN WHATSAPP FLOTANTE — solo móvil
+══════════════════════════════════════════════════ */
+#waFloat {
+  display: none;                         /* oculto en desktop */
+  position: fixed; bottom: 24px; right: 20px;
+  z-index: 150;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--green);
+  align-items: center; justify-content: center;
+  box-shadow: 0 6px 24px rgba(37,211,102,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.4s 0.5s ease both;
+}
+#waFloat svg {
+  width: 28px; height: 28px; fill: #fff;
+}
+#waFloat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 32px rgba(37,211,102,0.6);
+}
+
+@media (max-width: 900px) {
+  #waFloat { display: flex; }
+}
+
+/* ── Infinite scroll spinner ─────────────────────── */
+.infinite-spinner {
+  display: flex; justify-content: center; padding: 24px;
+}
