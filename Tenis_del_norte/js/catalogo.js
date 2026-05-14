@@ -122,7 +122,7 @@ function render() {
   const all   = getFiltered();
   const slice = all.slice(0, visibleCount);
 
-  /* Limpiar tarjetas previas (no el loader) */
+  /* Render completo: limpiar y reconstruir (cambio de filtros/búsqueda/categoría) */
   gallery.querySelectorAll('.card').forEach(c => c.remove());
 
   const catLabel   = { hombre: 'Hombre', mujer: 'Mujer', promo: '⚡ Promos' }[currentCat] || '';
@@ -146,12 +146,22 @@ function render() {
   resultsEl.innerHTML =
     `<span>${all.length}</span> modelo${all.length !== 1 ? 's' : ''} · ${catLabel} · ${brandLabel}${searchLabel}`;
 
-  slice.forEach((item, i) => gallery.appendChild(buildCard(item, i)));
+  appendCards(slice, 0);
 
   /* Spinner de carga infinita — visible si quedan más items */
   if (loadMoreWrap) {
     loadMoreWrap.classList.toggle('hidden', visibleCount >= all.length);
   }
+}
+
+/* Añade tarjetas al final sin tocar las existentes.
+   batchOffset = índice dentro del LOTE actual (para el stagger de animación). */
+function appendCards(items, batchOffset = 0) {
+  const frag = document.createDocumentFragment();
+  items.forEach((item, i) => {
+    frag.appendChild(buildCard(item, batchOffset + i));
+  });
+  gallery.appendChild(frag);
 }
 
 /* ════════════════════════════════════════════════════
@@ -172,10 +182,10 @@ function makePlaceholder(marca, referencia) {
 function buildCard(item, index) {
   const card = document.createElement('div');
   card.className = 'card' + (item.promocion == 1 ? ' card-promo' : '');
-  card.style.animationDelay = `${Math.min(index * 25, 400)}ms`;
+  card.style.animationDelay = `${Math.min(index * 30, 180)}ms`;
 
   const waMsg  = encodeURIComponent(
-    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n\n¿Me confirmas disponibilidad en la talla: ?`
+    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n*Código:* #${item.id}\n\n¿Me confirmas si tienes la talla ?`
   );
   const waLink = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 
@@ -291,15 +301,25 @@ function initFilters() {
   /* ── Infinite scroll con IntersectionObserver ───── */
   const sentinel = document.getElementById('infiniteSentinel');
   if (sentinel) {
+    let loading = false;
     const io = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        const all = getFiltered();
-        if (visibleCount < all.length) {
-          visibleCount += pageSize();
-          render();
-        }
+      if (!entries[0].isIntersecting || loading) return;
+      const all = getFiltered();
+      if (visibleCount >= all.length) return;
+
+      loading = true;
+      const prevCount = visibleCount;
+      const nextCount = Math.min(prevCount + pageSize(), all.length);
+      visibleCount = nextCount;
+
+      /* Solo añadir las nuevas tarjetas — las anteriores no se tocan */
+      appendCards(all.slice(prevCount, nextCount), 0);
+
+      if (loadMoreWrap) {
+        loadMoreWrap.classList.toggle('hidden', visibleCount >= all.length);
       }
-    }, { rootMargin: '200px' });
+      loading = false;
+    }, { rootMargin: '400px' });
     io.observe(sentinel);
   }
 
@@ -382,7 +402,7 @@ function fillLightbox(item) {
     ? `\n*Precio promo:* ${formatCOP(item.precio_promo)}`
     : item.precio ? `\n*Precio:* ${formatCOP(item.precio)}` : '';
   const waMsg = encodeURIComponent(
-    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n\n¿Me confirmas disponibilidad en la talla: ?`
+    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n*Código:* #${item.id}\n\n¿Me confirmas si tienes la talla ?`
   );
   lbWaBtn.href = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 

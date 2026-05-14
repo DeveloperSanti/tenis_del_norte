@@ -14,7 +14,7 @@
   const TIMEOUT_MS      = 20 * 60 * 1000;   // 15 minutos
   const WARNING_MS      = 17 * 60 * 1000;   // advertencia a los 12 min
   const PING_INTERVAL   = 60 * 1000;        // ping cada 1 min
-  const LOGOUT_URL      = './logout.php';
+  const LOGOUT_URL      = '../api/logout.php';
   const PING_URL        = '../api/session_ping.php';
 
   /* ── ESTADO ────────────────────────────────────── */

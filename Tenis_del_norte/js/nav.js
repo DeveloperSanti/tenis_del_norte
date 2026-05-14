@@ -27,16 +27,16 @@ function injectNav() {
   const nav = document.createElement('nav');
   nav.className = 'nav';
   nav.innerHTML = `
-    <a href="index" class="nav-logo">
+    <a href="/" class="nav-logo">
       <img src="${LOGO}" alt="TN" class="nav-logo-img"/>
       <span class="nav-logo-text">TENIS <span>DEL NORTE</span></span>
     </a>
 
     <ul class="nav-links">
-      <li><a href="index.html"          ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
-      <li><a href="inicio.html#quienes"                                            >Nosotros</a></li>
-      <li><a href="inicio.html#como"                                               >Cómo comprar</a></li>
-      <li><a href="inicio.html#pagos"                                              >Pagos</a></li>
+      <li><a href="/"               ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
+      <li><a href="/inicio#quienes"                                            >Nosotros</a></li>
+      <li><a href="/inicio#como"                                               >Cómo comprar</a></li>
+      <li><a href="/inicio#pagos"                                              >Pagos</a></li>
     </ul>
 
     <div class="nav-right">
@@ -64,10 +64,10 @@ function injectNav() {
         <button class="nav-drawer-close" id="navDrawerClose" aria-label="Cerrar menú">✕</button>
       </div>
       <ul class="nav-drawer-links">
-        <li><a href="index.html"          ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
-        <li><a href="inicio.html#quienes"                                            >Nosotros</a></li>
-        <li><a href="inicio.html#como"                                               >Cómo comprar</a></li>
-        <li><a href="inicio.html#pagos"                                              >Pagos</a></li>
+        <li><a href="/"               ${active==='catalogo' ?'class="active"':''}>Catálogo</a></li>
+        <li><a href="/inicio#quienes"                                            >Nosotros</a></li>
+        <li><a href="/inicio#como"                                               >Cómo comprar</a></li>
+        <li><a href="/inicio#pagos"                                              >Pagos</a></li>
       </ul>
       <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener"
          class="btn-wa nav-drawer-wa">
@@ -138,10 +138,10 @@ function injectFooter() {
       <!-- Links -->
       <nav class="footer-nav">
         <ul class="nav-links-footer">
-          <li><a href="index.html">Catálogo</a></li>
-          <li><a href="inicio.html#quienes">Nosotros</a></li>
-          <li><a href="inicio.html#como">Cómo comprar</a></li>
-          <li><a href="inicio.html#pagos">Pagos</a></li>
+          <li><a href="/">Catálogo</a></li>
+          <li><a href="/inicio#inicio">Quiénes somos</a></li>
+          <li><a href="/inicio#como">Cómo comprar</a></li>
+          <li><a href="/inicio#pagos">Pagos</a></li>
         </ul>
       </nav>
 

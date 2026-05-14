@@ -1,0 +1,32 @@
+# ═══════════════════════════════════════════════════
+# Tenis del Norte — URLs limpias (sin .html)
+# ═══════════════════════════════════════════════════
+
+Options -MultiViews -Indexes
+RewriteEngine On
+
+DirectoryIndex index.html index.php
+
+# 1) /index.html → /  (canonicalización de la raíz)
+RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
+RewriteRule ^ / [R=301,L]
+
+# 2) /algo.html → /algo  (resto de páginas .html)
+RewriteCond %{THE_REQUEST} \s/+([^\s]+?)\.html[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L]
+
+# 3) Reescritura interna: /algo → /algo.html (si el .html existe)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]
+
+# 4) Bloquear acceso directo a archivos sensibles
+<FilesMatch "^(\.htaccess|setup\.sql)$">
+    Require all denied
+</FilesMatch>
+
+# 5) Bloquear acceso al config.php desde la web
+<Files "config.php">
+    Require all denied
+</Files>

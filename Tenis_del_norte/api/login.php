@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once 'config.php';
-
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -16,7 +15,7 @@ if (!$input || !isset($input['usuario']) || !isset($input['password'])) {
     exit;
 }
 
-$usuario = trim($input['usuario']);
+$usuario  = trim($input['usuario']);
 $password = $input['password'];
 
 if (empty($usuario) || empty($password)) {
@@ -30,8 +29,9 @@ try {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_user_id'] = $user['id'];
+        $_SESSION['admin_logged_in']  = true;
+        $_SESSION['admin_user_id']    = $user['id'];
+        $_SESSION['last_activity']    = time();   // ← marca de tiempo inicial
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);

@@ -1,9 +1,28 @@
 <?php
+/* ═══════════════════════════════════════════════════
+   admin/index.php — Panel de administración
+   Protegido por sesión PHP — sin sesión válida → login
+═══════════════════════════════════════════════════ */
 session_start();
+
+define('SESSION_TIMEOUT', 20 * 60); // 20 minutos (igual que session-guard.js)
+
+/* ── Verificar sesión ─────────────────────────────── */
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.html');
+    header('Location: /admin/login');
     exit;
 }
+
+/* ── Verificar timeout por inactividad ───────────── */
+if (isset($_SESSION['last_activity'])) {
+    if ((time() - $_SESSION['last_activity']) > SESSION_TIMEOUT) {
+        session_unset();
+        session_destroy();
+        header('Location: /admin/login?reason=inactivity');
+        exit;
+    }
+}
+$_SESSION['last_activity'] = time();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,25 +30,22 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin · Tenis del Norte</title>
-  <link rel="icon" href="/assets/favicon.ico">
+  <link rel="icon" href="../assets/favicon.ico"/>
   <link rel="stylesheet" href="../styles/global.css"/>
   <link rel="stylesheet" href="../styles/admin.css"/>
 </head>
 <body>
 
   <header class="admin-header">
-    <!-- Logo idéntico al nav principal -->
-    <a href="../index" class="admin-logo-link">
-      <img src="../assets/logo.png" alt="Tenis del Norte" class="admin-logo-img"/>
+    <a href="../admin/index.php" class="admin-logo-link">
+      <img src="../assets/logo.png" alt="Tenis del Norte" class="admin-logo-img"
+           onerror="this.outerHTML='<div class=&quot;nav-logo-badge&quot;>TN</div>'"/>
       <span class="admin-logo-text">TENIS <span>DEL NORTE</span></span>
       <span class="admin-badge">Admin</span>
     </a>
-
     <div class="admin-header-right">
-      <a href="../index" class="back-link">← Ver sitio</a>
-      <button class="btn-logout" id="btnLogout" type="button">
-        Cerrar sesión
-      </button>
+      <a href="/" class="back-link">← Ver sitio</a>
+      <button class="btn-logout" id="btnLogout" type="button">Cerrar sesión</button>
     </div>
   </header>
 
@@ -62,33 +78,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
             <option value="Jordan">Jordan</option>
             <option value="Reebok">Reebok</option>
             <option value="Vans">Vans</option>
-            <option value="Armani">Armani</option>
-            <option value="Asics">Asics</option>
             <option value="Converse">Converse</option>
-            <option value="Bape">Bape</option>
-            <option value="Calvin Klein">Calvin Klein</option>
-            <option value="Coach">Coach</option>
-            <option value="CQ">CQ</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Dolce Gabbana">Dolce Gabbana</option>
-            <option value="Fila">Fila</option>
-            <option value="Gucci">Gucci</option>
-            <option value="Hoka">Hoka</option>
-            <option value="Jordan">Jordan</option>
-            <option value="Le Coq Sportif">Le Coq Sportif</option>
-            <option value="Louis Vuitton">Louis Vuitton</option>
-            <option value="Off White">Off White</option>
-            <option value="Skechers">Skechers</option>
-            <option value="Timberland">Timberland</option>
-            <option value="Valentino">Valentino</option>
-            <option value="Alexander Mcqueen">Alexander Mcqueen</option>
-            <option value="Guayos">Guayos</option>
-            <option value="Hugo Boss">Hugo Boss</option>
-            <option value="Hunder Armour">Hunder Armour</option>
-            <option value="Lacoste">Lacoste</option>
-            <option value="Polo">Polo</option>
-            <option value="Vans">Vans</option>
-            <option value="Tommy Hilfiger">Vans</option>
             <option value="Otra">Otra</option>
           </select>
         </div>
@@ -102,7 +92,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         </div>
       </div>
 
-      <!-- PRECIO NORMAL -->
       <div class="form-group">
         <label for="precio">Precio normal (COP)</label>
         <div class="price-input-wrap">
@@ -111,7 +100,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         </div>
       </div>
 
-      <!-- TOGGLE PROMO -->
       <div class="form-group">
         <label>¿Promoción?</label>
         <div class="toggle-row">
@@ -123,7 +111,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         </div>
       </div>
 
-      <!-- PRECIO PROMO (se muestra solo si promo está activo) -->
       <div class="form-group promo-price-group hidden" id="promoPriceGroup">
         <label for="precioPromo">Precio en promo (COP) <span class="promo-label-badge">⚡ PROMO</span></label>
         <div class="price-input-wrap promo">
@@ -133,7 +120,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         <p class="price-hint">El cliente verá el precio normal tachado y este precio destacado.</p>
       </div>
 
-      <!-- FOTO -->
       <div class="form-group">
         <label>Foto del tenis *</label>
         <div class="file-drop" id="fileDrop">
@@ -187,10 +173,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         <p class="empty-list">Cargando referencias...</p>
       </div>
     </div>
-
   </div>
 
-  <!-- MODAL PRECIO PROMO (para toggle desde la lista) -->
+  <!-- MODAL PROMO -->
   <div class="modal-overlay hidden" id="promoModal">
     <div class="modal-box">
       <span class="modal-icon">⚡</span>
@@ -205,7 +190,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         <p class="price-hint" style="margin-top:6px;">Deja vacío si no quieres mostrar precio promo.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn-cancel"      id="btnCancelPromo">Cancelar</button>
+        <button class="btn-cancel" id="btnCancelPromo">Cancelar</button>
         <button class="btn-confirm-del" id="btnConfirmPromo"
                 style="background:var(--gold);color:var(--navy);box-shadow:0 4px 16px rgba(245,197,24,0.35);">
           Activar promo
@@ -228,7 +213,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     </div>
   </div>
 
-
   <!-- MODAL CERRAR SESIÓN -->
   <div class="modal-overlay hidden" id="logoutModal">
     <div class="modal-box">
@@ -237,7 +221,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
       <p>¿Seguro que quieres salir del panel de administración?</p>
       <div class="modal-actions">
         <button class="btn-cancel" id="btnCancelLogout">Quedarme</button>
-        <a href="./logout.php" class="btn-confirm-del" id="btnConfirmLogout"
+        <a href="../api/logout.php" class="btn-confirm-del" id="btnConfirmLogout"
            style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
           Sí, salir
         </a>
@@ -246,5 +230,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
   </div>
 
   <script src="../js/admin.js"></script>
+  <script src="../js/session-guard.js"></script>
 </body>
 </html>

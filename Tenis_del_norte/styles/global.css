@@ -280,7 +280,7 @@ button { font-family: var(--font-b); cursor: pointer; }
   color: var(--gold); font-size: 11px; font-weight: 700;
   letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px;
 }
-.section-label::before { content: ''; width: 24px; height: 2px; background: var(--gold); }
+
 
 .section-title {
   font-family: var(--font-d);
@@ -291,7 +291,7 @@ button { font-family: var(--font-b); cursor: pointer; }
 
 .gold-line {
   width: 60px; height: 3px; background: var(--gold);
-  border-radius: 2px; margin: 0 auto 32px;
+  border-radius: 2px; margin: 0 auto 15px;
 }
 
 .gold-divider {

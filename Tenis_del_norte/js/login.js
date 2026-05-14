@@ -10,6 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorEl     = document.getElementById('loginError');
   const togglePass  = document.getElementById('togglePass');
 
+  /* ── Mostrar razón de cierre de sesión ───────────── */
+  const REASON_MESSAGES = {
+    inactivity:     '⏱️ Sesión cerrada por inactividad (15 min).',
+    server_expired: '⚠️ Tu sesión expiró. Inicia sesión de nuevo.',
+  };
+  const params = new URLSearchParams(window.location.search);
+  const reason = params.get('reason');
+  if (reason && REASON_MESSAGES[reason] && errorEl) {
+    errorEl.textContent = REASON_MESSAGES[reason];
+    errorEl.style.display = 'block';
+    /* Limpiar el query param de la URL sin recargar */
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   /* ── Mostrar/ocultar contraseña ──────────────────── */
   togglePass?.addEventListener('click', () => {
     const isPass = passwordEl.type === 'password';
@@ -55,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (data.success) {
-        window.location.href = 'index.php';
+        window.location.href = '/admin/';
       } else {
         showError(data.message || 'Usuario o contraseña incorrectos.');
         passwordEl.value = '';
