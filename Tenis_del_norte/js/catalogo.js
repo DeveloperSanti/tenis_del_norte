@@ -186,10 +186,10 @@ function buildCard(item, index) {
   card.className = 'card' + (item.promocion == 1 ? ' card-promo' : '');
   card.style.animationDelay = `${Math.min(index * 30, 180)}ms`;
 
+  const productUrl = `${window.location.origin}/?ref=${item.id}`;
   const waMsg  = encodeURIComponent(
-    `¡Hola! 👋 Vi este modelo en el catálogo y me interesa.\n\n` +
-    `*Marca:* ${item.marca}\n` +
-    `*Referencia:* ${item.referencia}\n\n` +
+    `¡Hola! 👋 Estoy interesado(a) en este modelo ${item.marca}:\n\n` +
+    `${productUrl}\n\n` +
     `¿Está disponible? ¿Qué tallas tienen? 🙏`
   );
   const waLink = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
@@ -199,14 +199,12 @@ function buildCard(item, index) {
   const showUnisex = item.categoria === 'unisex' && currentCat !== 'promo';
 
   card.innerHTML = `
-    <span class="badge-id">#${item.id}</span>
     ${item.promocion == 1 ? '<span class="badge-promo">⚡ PROMO</span>' : ''}
     ${showUnisex           ? '<span class="badge-unisex">UNISEX</span>' : ''}
     <img src="${imgSrc}" alt="${item.marca} ${item.referencia}" loading="lazy"/>
     <div class="card-foot">
       <div class="card-foot-left">
         <span class="card-brand">${item.marca}</span>
-        <span class="card-ref">${item.referencia}</span>
       </div>
       ${buildPriceHTML(item)}
     </div>
@@ -408,7 +406,6 @@ const lightbox  = document.getElementById('lightbox');
 const lbImg     = document.getElementById('lbImg');
 const lbImgWrap = document.getElementById('lbImgWrap');
 const lbMarca   = document.getElementById('lbMarca');
-const lbRef     = document.getElementById('lbRef');
 const lbBadges  = document.getElementById('lbBadges');
 const lbPrice   = document.getElementById('lbPrice');
 const lbWaBtn   = document.getElementById('lbWaBtn');
@@ -433,7 +430,6 @@ function fillLightbox(item) {
   lbImg.classList.remove('zoomed');
 
   lbMarca.textContent = item.marca.toUpperCase();
-  lbRef.textContent   = `Ref: ${item.referencia}  ·  #${item.id}`;
 
   if (lbPrice) lbPrice.innerHTML = buildPriceHTML(item, 'large');
 
@@ -441,15 +437,11 @@ function fillLightbox(item) {
   if (item.promocion == 1)         lbBadges.innerHTML += '<span class="lb-badge promo">⚡ PROMO</span>';
   if (item.categoria === 'unisex') lbBadges.innerHTML += '<span class="lb-badge unisex">UNISEX</span>';
 
-  const precioLinea = item.precio_promo && item.promocion == 1
-    ? `*Precio promo:* ${formatCOP(item.precio_promo)}\n`
-    : item.precio ? `*Precio:* ${formatCOP(item.precio)}\n` : '';
+  const productUrl = `${window.location.origin}/?ref=${item.id}`;
   const waMsg = encodeURIComponent(
-    `¡Hola! 👋 Vi este modelo en el catálogo y me interesa.\n\n` +
-    `*Marca:* ${item.marca}\n` +
-    `*Referencia:* ${item.referencia}\n` +
-    precioLinea +
-    `\n¿Está disponible? ¿Qué tallas tienen? 🙏`
+    `¡Hola! 👋 Estoy interesado(a) en este modelo ${item.marca}:\n\n` +
+    `${productUrl}\n\n` +
+    `¿Está disponible? ¿Qué tallas tienen? 🙏`
   );
   lbWaBtn.href = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 
