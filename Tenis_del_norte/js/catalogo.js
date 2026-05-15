@@ -535,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const productUrl  = `${window.location.origin}/?ref=${item.id}`;
     const shareTitle  = `${item.marca} ${item.referencia} · Tenis del Norte`;
-    const shareText   = `Mira este ${item.marca} que encontré en Tenis del Norte 🔥\nRef: ${item.referencia}`;
+    const shareText   = `Mira estos tenis ${item.marca} que encontré en Tenis del Norte 🔥`;
 
     if (navigator.share) {
       navigator.share({ title: shareTitle, text: shareText, url: productUrl }).catch(() => {});
