@@ -88,6 +88,7 @@ async function fetchData() {
   }
   showLoader(false);
   updateBrandSelect();
+  updateTabCounts();
   resetAndRender();
 }
 
@@ -185,7 +186,10 @@ function buildCard(item, index) {
   card.style.animationDelay = `${Math.min(index * 30, 180)}ms`;
 
   const waMsg  = encodeURIComponent(
-    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n*Código:* #${item.id}\n\n¿Me confirmas si tienes la talla ?`
+    `¡Hola! 👋 Vi este modelo en el catálogo y me interesa.\n\n` +
+    `*Marca:* ${item.marca}\n` +
+    `*Referencia:* ${item.referencia}\n\n` +
+    `¿Está disponible? ¿Qué tallas tienen? 🙏`
   );
   const waLink = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 
@@ -333,7 +337,45 @@ function initFilters() {
 
 function showLoader(show) {
   const loader = document.getElementById('loader');
-  if (loader) loader.classList.toggle('hidden', !show);
+  if (show) {
+    const count = Math.min(pageSize(), 12);
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'card-skeleton';
+      s.style.animationDelay = `${i * 25}ms`;
+      s.innerHTML = `
+        <div class="skeleton-img"></div>
+        <div class="skeleton-foot">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line price"></div>
+        </div>`;
+      frag.appendChild(s);
+    }
+    gallery.appendChild(frag);
+    if (loader) loader.classList.add('hidden');
+  } else {
+    gallery.querySelectorAll('.card-skeleton').forEach(s => s.remove());
+    if (loader) loader.classList.add('hidden');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   CONTADORES EN TABS
+════════════════════════════════════════════════════ */
+function updateTabCounts() {
+  const countH = allItems.filter(z => z.categoria === 'hombre' || z.categoria === 'unisex').length;
+  const countM = allItems.filter(z => z.categoria === 'mujer'  || z.categoria === 'unisex').length;
+  const countP = allItems.filter(z => z.promocion == 1).length;
+
+  const tH = document.getElementById('tabCountHombre');
+  const tM = document.getElementById('tabCountMujer');
+  const tP = document.getElementById('tabCountPromo');
+
+  if (tH) tH.textContent = countH;
+  if (tM) tM.textContent = countM;
+  if (tP) tP.textContent = countP > 0 ? countP : '';
 }
 
 /* ════════════════════════════════════════════════════
@@ -398,11 +440,15 @@ function fillLightbox(item) {
   if (item.promocion == 1)         lbBadges.innerHTML += '<span class="lb-badge promo">⚡ PROMO</span>';
   if (item.categoria === 'unisex') lbBadges.innerHTML += '<span class="lb-badge unisex">UNISEX</span>';
 
-  const precioTexto = item.precio_promo && item.promocion == 1
-    ? `\n*Precio promo:* ${formatCOP(item.precio_promo)}`
-    : item.precio ? `\n*Precio:* ${formatCOP(item.precio)}` : '';
+  const precioLinea = item.precio_promo && item.promocion == 1
+    ? `*Precio promo:* ${formatCOP(item.precio_promo)}\n`
+    : item.precio ? `*Precio:* ${formatCOP(item.precio)}\n` : '';
   const waMsg = encodeURIComponent(
-    `¡Hola! Me enamoré de este modelo 😍\n*Referencia:* ${item.referencia}\n*Marca:* ${item.marca}\n*Código:* #${item.id}\n\n¿Me confirmas si tienes la talla ?`
+    `¡Hola! 👋 Vi este modelo en el catálogo y me interesa.\n\n` +
+    `*Marca:* ${item.marca}\n` +
+    `*Referencia:* ${item.referencia}\n` +
+    precioLinea +
+    `\n¿Está disponible? ¿Qué tallas tienen? 🙏`
   );
   lbWaBtn.href = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 
@@ -466,6 +512,40 @@ lightbox.addEventListener('touchend',   e => {
   if (lbImg.classList.contains('zoomed')) return;
   const diff = touchStartX - e.changedTouches[0].clientX;
   if (Math.abs(diff) > 50) diff > 0 ? lbNext.click() : lbPrev.click();
+});
+
+/* ════════════════════════════════════════════════════
+   COMPARTIR PRODUCTO
+════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('lbShareBtn')?.addEventListener('click', () => {
+    const item = lbItems[lbIndex];
+    if (!item) return;
+
+    const shareTitle = `${item.marca} ${item.referencia} · Tenis del Norte`;
+    const shareText  = `Mira este ${item.marca} que encontré en Tenis del Norte 🔥\nRef: ${item.referencia}`;
+
+    if (navigator.share) {
+      navigator.share({ title: shareTitle, text: shareText, url: window.location.origin })
+        .catch(() => {});
+      return;
+    }
+
+    /* Fallback: copiar al portapapeles */
+    const copyText = `${shareText}\nVer catálogo: ${window.location.origin}`;
+    navigator.clipboard.writeText(copyText).then(() => {
+      const btn = document.getElementById('lbShareBtn');
+      if (!btn) return;
+      const original = btn.innerHTML;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span> ¡Copiado!</span>`;
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2500);
+    }).catch(() => {
+      /* Si clipboard falla, abrir WhatsApp share */
+      const waShare = `https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`;
+      window.open(waShare, '_blank', 'noopener');
+    });
+  });
 });
 
 /* ── INIT ────────────────────────────────────────── */

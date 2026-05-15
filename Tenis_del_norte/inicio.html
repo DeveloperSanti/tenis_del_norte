@@ -4,12 +4,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="Tenis del Norte — El mejor catálogo de tenis deportivos para hombre y mujer. Nike, Adidas, Puma y más. Envíos a toda Colombia." />
-  <title>Tenis del Norte · Inicio</title>
-  <link rel="icon" href="assets/favicon.ico">
+  <meta name="description" content="Tenis del Norte — El mejor catálogo de tenis deportivos Nike, Adidas, Jordan, Puma, New Balance y más. Envíos al norte de Antioquia, Medellín y toda Colombia. Compra segura por WhatsApp." />
+  <meta name="keywords" content="tenis deportivos Colombia, zapatillas Nike Adidas Jordan Puma, comprar tenis Antioquia, tenis norte Antioquia, Ituango Toledo tenis, tenis Medellín baratos, calzado deportivo Colombia" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Tenis del Norte" />
+  <title>Tenis del Norte · Catálogo de Tenis Deportivos | Nike, Adidas, Jordan</title>
+  <link rel="canonical" href="https://tenisdelnorte.com/inicio" />
+  <link rel="icon" href="assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="assets/favicon.ico" />
+
+  <!-- Open Graph (Facebook, Instagram, WhatsApp) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tenisdelnorte.com/inicio" />
+  <meta property="og:title" content="Tenis del Norte — Catálogo de Tenis Deportivos Colombia" />
+  <meta property="og:description" content="Más de 1.000 referencias de Nike, Adidas, Jordan, Puma y más. Envíos al norte de Antioquia y Medellín. Compra 100% segura por WhatsApp." />
+  <meta property="og:image" content="https://tenisdelnorte.com/assets/logo.png" />
+  <meta property="og:locale" content="es_CO" />
+  <meta property="og:site_name" content="Tenis del Norte" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tenis del Norte — Catálogo de Tenis" />
+  <meta name="twitter:description" content="Nike, Adidas, Jordan, Puma y más. Envíos a Colombia. Compra segura por WhatsApp." />
+  <meta name="twitter:image" content="https://tenisdelnorte.com/assets/logo.png" />
+
+  <!-- Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
   <link rel="stylesheet" href="styles/global.css" />
   <link rel="stylesheet" href="styles/home.css" />
+
+  <!-- Schema.org: Tienda + Website -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Store",
+        "@id": "https://tenisdelnorte.com/#store",
+        "name": "Tenis del Norte",
+        "description": "Catálogo de tenis deportivos Nike, Adidas, Jordan, Puma y más. Envíos al norte de Antioquia y Medellín.",
+        "url": "https://tenisdelnorte.com",
+        "telephone": "+573003218196",
+        "priceRange": "$$",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Toledo",
+          "addressRegion": "Antioquia",
+          "addressCountry": "CO"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+573003218196",
+          "contactType": "sales",
+          "availableLanguage": "Spanish"
+        },
+        "areaServed": ["Norte de Antioquia", "Medellín", "Colombia"],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Catálogo de Tenis Deportivos 2026"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://tenisdelnorte.com/#website",
+        "url": "https://tenisdelnorte.com",
+        "name": "Tenis del Norte",
+        "description": "El mejor catálogo de tenis deportivos para hombre y mujer",
+        "publisher": { "@id": "https://tenisdelnorte.com/#store" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://tenisdelnorte.com/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
@@ -68,6 +140,38 @@
 
     <div class="scroll-hint">Scroll</div>
   </section>
+
+  <!-- ══════════════════════════════════════
+       BARRA DE CONFIANZA
+  ══════════════════════════════════════ -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <div class="trust-item">
+        <span class="trust-icon">🔒</span>
+        <span class="trust-text">Compra <strong>100% segura</strong></span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-icon">✅</span>
+        <span class="trust-text">Producto <strong>verificado</strong></span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-icon">💬</span>
+        <span class="trust-text">Respuesta en <strong>&lt; 10 min</strong></span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-icon">🚚</span>
+        <span class="trust-text">Envío <strong>a toda Colombia</strong></span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-icon">↩️</span>
+        <span class="trust-text">Cambios <strong>garantizados</strong></span>
+      </div>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════
        QUIÉNES SOMOS
@@ -164,6 +268,66 @@
         </div>
       </div>
     
+  </section>
+
+  <!-- ══════════════════════════════════════
+       TESTIMONIOS
+  ══════════════════════════════════════ -->
+  <section class="section testimonials-section" id="testimonios">
+    <div class="text-center reveal" style="margin-bottom: 48px;">
+      <div class="section-label">Clientes satisfechos</div>
+      <h2 class="section-title">LO QUE <span>DICEN</span></h2>
+      <div class="gold-line"></div>
+      <p style="color: var(--muted); font-size: 15px; max-width: 440px; margin: 16px auto 0; line-height: 1.7;">
+        Más de 500 clientes ya eligieron su par ideal con nosotros.
+      </p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Me llegaron en perfectas condiciones. La atención por WhatsApp fue rapidísima y me confirmaron la talla al instante. ¡100% recomendados!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JD</div>
+          <div>
+            <div class="testimonial-name">Jhon D.</div>
+            <div class="testimonial-location">Ituango, Antioquia</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Compré unos Nike Air Force 1 y quedé feliz. El mejor precio que encontré. El despacho fue rápido y seguro, llegaron exactamente como en la foto."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">VR</div>
+          <div>
+            <div class="testimonial-name">Valentina R.</div>
+            <div class="testimonial-location">Medellín, Antioquia</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Buenísima atención! Me ayudaron a elegir el Jordan que quería. Separé con Nequi y todo fue facilísimo. Ya compré dos veces y vuelvo pronto."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SM</div>
+          <div>
+            <div class="testimonial-name">Sebastián M.</div>
+            <div class="testimonial-location">San José de la Montaña</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Aproveché una promo de Adidas y fue lo mejor que hice. Los tenis son exactamente lo del catálogo. El plan separe me ayudó un montón. ¡Volveré!"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">LP</div>
+          <div>
+            <div class="testimonial-name">Laura P.</div>
+            <div class="testimonial-location">Toledo, Antioquia</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ══════════════════════════════════════

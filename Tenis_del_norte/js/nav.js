@@ -182,8 +182,14 @@ function injectAnnouncement() {
   /* No mostrar en el panel admin */
   if (window.location.pathname.includes('/admin')) return;
 
-  const STORAGE_KEY = 'tdn_announce_v1';
-  const MSG = '🔥 <strong>¡Nuevas referencias disponibles!</strong> Escríbenos por WhatsApp y pregunta por las últimas llegadas.';
+  const STORAGE_KEY = 'tdn_announce_v2';
+  const MSGS = [
+    '🔥 <strong>¡Stock limitado!</strong> Nuevas referencias Nike y Jordan disponibles. ¡Pregunta antes de que se agoten!',
+    '⚡ <strong>Promos activas</strong> · Hasta 30% OFF en modelos seleccionados. Solo por tiempo limitado.',
+    '🚚 <strong>Envíos a todo el norte de Antioquia</strong> · Contra entrega o Nequi. Rápido y seguro.',
+    '✅ <strong>+500 clientes satisfechos</strong> · Compra con confianza. Respuesta en WhatsApp en minutos.',
+  ];
+  const MSG = MSGS[new Date().getDay() % MSGS.length];
 
   /* Si ya fue cerrado en esta sesión, no mostrar */
   if (sessionStorage.getItem(STORAGE_KEY) === 'closed') return;
