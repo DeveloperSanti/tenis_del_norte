@@ -90,6 +90,7 @@ async function fetchData() {
   updateBrandSelect();
   updateTabCounts();
   resetAndRender();
+  deepLinkInit();
 }
 
 /* ════════════════════════════════════════════════════
@@ -455,12 +456,22 @@ function fillLightbox(item) {
   lbCounter.textContent = `${lbIndex + 1} / ${lbItems.length}`;
   lbPrev.classList.toggle('hidden', lbItems.length <= 1);
   lbNext.classList.toggle('hidden', lbItems.length <= 1);
+
+  /* Actualizar URL para que cualquier momento sea compartible */
+  const u = new URL(window.location.href);
+  u.searchParams.set('ref', item.id);
+  window.history.replaceState({}, '', u.pathname + u.search);
 }
 
 function closeLightbox() {
   lightbox.classList.add('hidden');
   document.body.style.overflow = '';
   lbImg.classList.remove('zoomed');
+
+  /* Limpiar ?ref de la URL al cerrar */
+  const u = new URL(window.location.href);
+  u.searchParams.delete('ref');
+  window.history.replaceState({}, '', u.pathname + (u.searchParams.toString() ? '?' + u.searchParams.toString() : ''));
 }
 
 lbClose.addEventListener('click', closeLightbox);
@@ -522,31 +533,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = lbItems[lbIndex];
     if (!item) return;
 
-    const shareTitle = `${item.marca} ${item.referencia} · Tenis del Norte`;
-    const shareText  = `Mira este ${item.marca} que encontré en Tenis del Norte 🔥\nRef: ${item.referencia}`;
+    const productUrl  = `${window.location.origin}/?ref=${item.id}`;
+    const shareTitle  = `${item.marca} ${item.referencia} · Tenis del Norte`;
+    const shareText   = `Mira este ${item.marca} que encontré en Tenis del Norte 🔥\nRef: ${item.referencia}`;
 
     if (navigator.share) {
-      navigator.share({ title: shareTitle, text: shareText, url: window.location.origin })
-        .catch(() => {});
+      navigator.share({ title: shareTitle, text: shareText, url: productUrl }).catch(() => {});
       return;
     }
 
-    /* Fallback: copiar al portapapeles */
-    const copyText = `${shareText}\nVer catálogo: ${window.location.origin}`;
-    navigator.clipboard.writeText(copyText).then(() => {
+    /* Fallback desktop: copiar enlace directo al producto */
+    navigator.clipboard.writeText(productUrl).then(() => {
       const btn = document.getElementById('lbShareBtn');
       if (!btn) return;
       const original = btn.innerHTML;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span> ¡Copiado!</span>`;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>¡Copiado!</span>`;
       btn.classList.add('copied');
       setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2500);
     }).catch(() => {
-      /* Si clipboard falla, abrir WhatsApp share */
-      const waShare = `https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`;
+      const waShare = `https://wa.me/?text=${encodeURIComponent(shareText + '\n' + productUrl)}`;
       window.open(waShare, '_blank', 'noopener');
     });
   });
 });
+
+/* ════════════════════════════════════════════════════
+   DEEP LINK — abrir producto directo desde URL ?ref=ID
+════════════════════════════════════════════════════ */
+function deepLinkInit() {
+  const ref = new URLSearchParams(window.location.search).get('ref');
+  if (!ref) return;
+
+  const item = allItems.find(z => String(z.id) === String(ref));
+  if (!item) return;
+
+  /* Activar el tab correcto según la categoría del producto */
+  const cat = item.categoria === 'mujer' ? 'mujer' : 'hombre';
+  currentCat = cat;
+  document.querySelectorAll('.main-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === cat);
+  });
+  updateBrandSelect();
+  resetAndRender();
+
+  /* Abrir el lightbox con el producto */
+  const filtered = getFiltered();
+  const idx = Math.max(0, filtered.findIndex(z => z.id === item.id));
+  openLightbox(item, idx, filtered);
+}
 
 /* ── INIT ────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
