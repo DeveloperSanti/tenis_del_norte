@@ -76,6 +76,24 @@
   transform: translateY(-1px);
 }
 
+/* ── Botón Campañas (header admin) ───────────────── */
+.btn-campaigns {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(245,197,24,0.1);
+  border: 1px solid rgba(245,197,24,0.3);
+  color: var(--gold);
+  font-family: var(--font-b); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-campaigns:hover {
+  background: rgba(245,197,24,0.2);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
 /* ── Header responsive ───────────────────────────── */
 @media (max-width: 860px) {
   .admin-badge { display: none; }           /* ocultar pill "Admin" */
@@ -335,8 +353,119 @@ select option { background: var(--navy); color: var(--white); }
   transition: all 0.2s; white-space: nowrap;
 }
 .btn-action:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
-.btn-action.btn-del:hover { border-color: var(--red); color: var(--red); }
-.btn-action.btn-promo:hover { border-color: var(--gold); color: var(--gold); }
+.btn-action.btn-del:hover   { border-color: var(--red);   color: var(--red); }
+.btn-action.btn-promo:hover { border-color: var(--gold);  color: var(--gold); }
+.btn-action.btn-edit:hover  { border-color: #4fc3f7;      color: #4fc3f7; }
+
+/* ── Selector de marca con botón "+" ─────────────── */
+.marca-input-wrap {
+  display: flex; gap: 8px; align-items: stretch;
+}
+.marca-input-wrap select { flex: 1; min-width: 0; }
+.btn-add-marca {
+  flex-shrink: 0;
+  width: 44px;
+  background: rgba(245,197,24,0.12);
+  border: 1px solid rgba(245,197,24,0.4);
+  color: var(--gold);
+  border-radius: 10px;
+  font-size: 22px; font-weight: 700; line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-marca:hover {
+  background: rgba(245,197,24,0.22);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+/* ── Modal de edición — más alto, scroll interno ── */
+.modal-box.modal-edit {
+  max-width: 480px;
+  text-align: left;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-box.modal-edit h3 { text-align: center; }
+.modal-box.modal-edit > p { text-align: center; }
+
+/* ═══════════════════════════════════════════════════
+   MODAL DE CAMPAÑAS MASIVAS
+═══════════════════════════════════════════════════ */
+.modal-box.modal-campaigns {
+  max-width: 620px;
+  text-align: left;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-box.modal-campaigns h3 { text-align: center; }
+.modal-box.modal-campaigns > p { text-align: center; margin-bottom: 24px; }
+
+.modal-close-x {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--muted); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close-x:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+.campaigns-list {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 8px;
+}
+.campaign-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.campaign-info { flex: 1; min-width: 0; }
+.campaign-top {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.campaign-name {
+  font-family: var(--font-d); font-size: 16px;
+  letter-spacing: 1.5px; color: var(--white);
+}
+.campaign-pct {
+  background: var(--gold); color: var(--navy);
+  font-size: 10px; font-weight: 800; padding: 3px 9px;
+  border-radius: 100px; letter-spacing: 1px;
+}
+.campaign-status {
+  font-size: 9px; font-weight: 800; padding: 3px 9px;
+  border-radius: 100px; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.campaign-status.activa   { background: rgba(37,211,102,0.15); color: var(--green);   border: 1px solid rgba(37,211,102,0.4); }
+.campaign-status.pausada  { background: rgba(255,255,255,0.05); color: var(--muted);  border: 1px solid rgba(255,255,255,0.15); }
+.campaign-status.expirada { background: rgba(255,77,109,0.1);  color: var(--red);     border: 1px solid rgba(255,77,109,0.3); }
+
+.campaign-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted); margin-bottom: 6px;
+}
+.campaign-msg {
+  font-size: 12px; color: var(--off-white);
+  line-height: 1.5;
+  background: rgba(0,0,0,0.15); padding: 8px 10px;
+  border-radius: 6px; border-left: 2px solid var(--gold);
+}
+
+.campaigns-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(245,197,24,0.3), transparent);
+  margin: 24px 0;
+}
+
+@media (max-width: 600px) {
+  .modal-box.modal-campaigns { padding: 28px 18px; }
+  .campaign-row { flex-direction: column; }
+  .campaign-row .row-actions { align-self: stretch; }
+}
 
 /* ── ESTADO VACÍO LISTA ──────────────────────────── */
 .empty-list {

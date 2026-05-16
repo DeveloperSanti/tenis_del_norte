@@ -77,11 +77,21 @@ function buildPriceHTML(item, size = 'normal') {
 async function fetchData() {
   showLoader(true);
   try {
-    const res  = await fetch(API_BASE + 'get_zapatos.php');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    allItems = Array.isArray(data) ? data : [];
-    console.log('✅ BD cargada:', allItems.length, 'referencias');
+    const [productsRes, campaignsRes] = await Promise.all([
+      fetch(API_BASE + 'get_zapatos.php'),
+      fetch(API_BASE + 'get_campaigns.php').catch(() => null),
+    ]);
+    if (!productsRes.ok) throw new Error('HTTP ' + productsRes.status);
+
+    const products = await productsRes.json();
+    let campaigns  = [];
+    if (campaignsRes && campaignsRes.ok) {
+      try { campaigns = await campaignsRes.json(); } catch {}
+    }
+
+    const raw = Array.isArray(products) ? products : [];
+    allItems = applyCampaigns(raw, Array.isArray(campaigns) ? campaigns : []);
+    console.log('✅ BD cargada:', allItems.length, 'referencias · campañas activas:', campaigns?.length || 0);
   } catch (err) {
     console.warn('⚠️ Sin API, usando demo:', err.message);
     allItems = generateDemo();
@@ -91,6 +101,33 @@ async function fetchData() {
   updateTabCounts();
   resetAndRender();
   deepLinkInit();
+}
+
+/* Aplica campañas activas a productos sin promo individual.
+   Regla: si el producto ya tiene promocion=1, se respeta su precio_promo.
+   Campañas de marca específica ganan sobre campañas globales. */
+function applyCampaigns(items, campaigns) {
+  if (!campaigns.length) return items;
+
+  const brandMap = {};
+  let globalCamp = null;
+  campaigns.forEach(c => {
+    if (c.scope === 'brand' && c.marca) brandMap[c.marca] = c;
+    else if (c.scope === 'all' && !globalCamp) globalCamp = c;
+  });
+
+  return items.map(item => {
+    /* Si ya tiene promo individual con precio promo definido, no tocar */
+    if (item.promocion == 1 && item.precio_promo) return item;
+    if (!item.precio || item.precio <= 0) return item;
+
+    const camp = brandMap[item.marca] || globalCamp;
+    if (!camp) return item;
+
+    /* Calcular precio rebajado, redondeado a miles para verse limpio */
+    const discounted = Math.round(item.precio * (1 - camp.porcentaje / 100) / 1000) * 1000;
+    return { ...item, promocion: 1, precio_promo: discounted, _campaignId: camp.id };
+  });
 }
 
 /* ════════════════════════════════════════════════════

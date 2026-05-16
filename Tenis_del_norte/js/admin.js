@@ -8,10 +8,12 @@ const IMG_BASE = '../uploads/';
 
 /* ── ESTADO ──────────────────────────────────────── */
 let allRefs         = [];
+let allMarcas       = [];
 let filterCat       = 'all';
 let filterBrand     = 'all';
 let pendingDeleteId = null;
 let pendingPromoId  = null;
+let pendingEditId   = null;
 
 /* ── Formatear COP ───────────────────────────────── */
 function formatCOP(val) {
@@ -46,6 +48,85 @@ document.addEventListener('DOMContentLoaded', () => {
   const promoToggle     = document.getElementById('promoToggle');
   const promoPriceGroup = document.getElementById('promoPriceGroup');
   const promoModal      = document.getElementById('promoModal');
+  const editModal       = document.getElementById('editModal');
+  const addMarcaModal   = document.getElementById('addMarcaModal');
+  const marcaSelect     = document.getElementById('marca');
+  const filterBrandEl   = document.getElementById('filterBrand');
+
+  /* ════════════════════════════════════════════════
+     MARCAS — cargar desde BD y poblar selects
+  ════════════════════════════════════════════════ */
+  async function loadMarcas() {
+    try {
+      const res  = await fetch(API + 'get_marcas.php');
+      const data = await res.json();
+      allMarcas  = Array.isArray(data) ? data : [];
+    } catch {
+      allMarcas = [];
+    }
+    populateMarcaSelects();
+  }
+
+  function populateMarcaSelects() {
+    /* Select de alta */
+    if (marcaSelect) {
+      marcaSelect.innerHTML = allMarcas.length
+        ? allMarcas.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('')
+        : '<option value="">Sin marcas — añade una con el botón +</option>';
+    }
+    /* Filtro de la lista */
+    if (filterBrandEl) {
+      const prev = filterBrandEl.value;
+      filterBrandEl.innerHTML =
+        '<option value="all">Todas las marcas</option>' +
+        allMarcas.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('');
+      filterBrandEl.value = prev || 'all';
+    }
+    /* Select del modal de edición */
+    const editMarca = document.getElementById('editMarca');
+    if (editMarca) {
+      editMarca.innerHTML = allMarcas.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('');
+    }
+  }
+
+  /* Botón + para añadir marca → abre modal */
+  document.getElementById('btnAddMarca')?.addEventListener('click', () => {
+    const input = document.getElementById('newMarcaName');
+    if (input) input.value = '';
+    addMarcaModal?.classList.remove('hidden');
+    setTimeout(() => input?.focus(), 50);
+  });
+
+  document.getElementById('btnCancelMarca')?.addEventListener('click', () => {
+    addMarcaModal?.classList.add('hidden');
+  });
+
+  document.getElementById('btnConfirmMarca')?.addEventListener('click', async () => {
+    const nombre = document.getElementById('newMarcaName')?.value.trim();
+    if (!nombre) { showFeedback('⚠️ Escribe el nombre de la marca.', false); return; }
+
+    const fd = new FormData();
+    fd.append('nombre', nombre);
+    try {
+      const res  = await fetch(API + 'add_marca.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        addMarcaModal?.classList.add('hidden');
+        await loadMarcas();
+        /* Auto-seleccionar la marca recién creada en el form de alta */
+        if (marcaSelect) marcaSelect.value = data.nombre;
+        showFeedback(`✅ Marca "${data.nombre}" añadida.`, true);
+      } else {
+        showFeedback('❌ ' + data.message, false);
+      }
+    } catch {
+      showFeedback('❌ Error de conexión.', false);
+    }
+  });
+
+  addMarcaModal?.addEventListener('click', e => {
+    if (e.target === addMarcaModal) addMarcaModal.classList.add('hidden');
+  });
 
   /* ════════════════════════════════════════════════
      FORMULARIO: TOGGLE PROMO → mostrar campo precio
@@ -231,6 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
           ${precioHTML ? `<div class="z-precios">${precioHTML}</div>` : ''}
         </div>
         <div class="row-actions">
+          <button class="btn-action btn-edit"
+                  onclick="openEditModal(${z.id})">
+            ✏️ Editar
+          </button>
           <button class="btn-action btn-promo"
                   onclick="handleTogglePromo(${z.id}, ${z.promocion}, '${z.referencia.replace(/'/g,"\\'")}', ${z.precio||0})">
             ${z.promocion == 1 ? '⚡ Quitar promo' : '+ Promo'}
@@ -308,6 +393,91 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ════════════════════════════════════════════════
+     EDITAR PRODUCTO
+  ════════════════════════════════════════════════ */
+  const editMarcaSel    = document.getElementById('editMarca');
+  const editCategoriaSel = document.getElementById('editCategoria');
+  const editPrecioInput  = document.getElementById('editPrecio');
+  const editPromoToggle  = document.getElementById('editPromoToggle');
+  const editPromoGroup   = document.getElementById('editPromoPriceGroup');
+  const editPrecioPromo  = document.getElementById('editPrecioPromo');
+
+  editPromoToggle?.addEventListener('change', () => {
+    if (editPromoToggle.checked) {
+      editPromoGroup?.classList.remove('hidden');
+    } else {
+      editPromoGroup?.classList.add('hidden');
+      if (editPrecioPromo) editPrecioPromo.value = '';
+    }
+  });
+
+  window.openEditModal = function(id) {
+    const z = allRefs.find(r => r.id === id);
+    if (!z) return;
+    pendingEditId = id;
+
+    /* Asegurar que el select de marca está poblado */
+    if (editMarcaSel) {
+      if (!editMarcaSel.options.length) populateMarcaSelects();
+      /* Si la marca actual no está en el listado, añadirla temporalmente */
+      if (![...editMarcaSel.options].some(o => o.value === z.marca)) {
+        const opt = document.createElement('option');
+        opt.value = z.marca; opt.textContent = z.marca;
+        editMarcaSel.appendChild(opt);
+      }
+      editMarcaSel.value = z.marca;
+    }
+    if (editCategoriaSel) editCategoriaSel.value = z.categoria;
+    if (editPrecioInput)  editPrecioInput.value  = z.precio || '';
+    if (editPromoToggle)  editPromoToggle.checked = z.promocion == 1;
+    if (editPrecioPromo)  editPrecioPromo.value  = z.precio_promo || '';
+    editPromoGroup?.classList.toggle('hidden', !(z.promocion == 1));
+
+    const refEl = document.getElementById('editModalRef');
+    if (refEl) {
+      refEl.innerHTML = `Editando <strong style="color:var(--gold)">${z.referencia}</strong> · #${z.id}`;
+    }
+    editModal?.classList.remove('hidden');
+  };
+
+  document.getElementById('btnCancelEdit')?.addEventListener('click', () => {
+    pendingEditId = null;
+    editModal?.classList.add('hidden');
+  });
+
+  document.getElementById('btnConfirmEdit')?.addEventListener('click', async () => {
+    if (!pendingEditId) return;
+
+    const isPromo = editPromoToggle?.checked ? 1 : 0;
+    const fd = new FormData();
+    fd.append('id',           pendingEditId);
+    fd.append('marca',        editMarcaSel?.value || '');
+    fd.append('categoria',    editCategoriaSel?.value || '');
+    fd.append('precio',       editPrecioInput?.value.trim() || '');
+    fd.append('promocion',    isPromo);
+    if (isPromo) fd.append('precio_promo', editPrecioPromo?.value.trim() || '');
+
+    try {
+      const res  = await fetch(API + 'update_tenis.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        editModal?.classList.add('hidden');
+        showFeedback(`✅ Referencia #${pendingEditId} actualizada.`, true);
+        pendingEditId = null;
+        loadList();
+      } else {
+        showFeedback('❌ ' + data.message, false);
+      }
+    } catch {
+      showFeedback('❌ Error de conexión.', false);
+    }
+  });
+
+  editModal?.addEventListener('click', e => {
+    if (e.target === editModal) { pendingEditId = null; editModal.classList.add('hidden'); }
+  });
+
+  /* ════════════════════════════════════════════════
      ELIMINAR
   ════════════════════════════════════════════════ */
 
@@ -345,7 +515,172 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ── INIT ────────────────────────────────────────── */
-  loadList();
+  loadMarcas().then(() => loadList());
+
+  /* ════════════════════════════════════════════════
+     CAMPAÑAS MASIVAS
+  ════════════════════════════════════════════════ */
+  const campaignsModal = document.getElementById('campaignsModal');
+  const btnCampaigns   = document.getElementById('btnCampaigns');
+  const campaignsList  = document.getElementById('campaignsList');
+  const campaignScope  = document.getElementById('campaignScope');
+  const campaignMarcaGroup = document.getElementById('campaignMarcaGroup');
+  const campaignMarcaSel   = document.getElementById('campaignMarca');
+
+  btnCampaigns?.addEventListener('click', () => {
+    populateCampaignMarcas();
+    resetCampaignForm();
+    loadCampaigns();
+    campaignsModal?.classList.remove('hidden');
+  });
+  document.getElementById('btnCloseCampaigns')?.addEventListener('click', () => {
+    campaignsModal?.classList.add('hidden');
+  });
+  campaignsModal?.addEventListener('click', e => {
+    if (e.target === campaignsModal) campaignsModal.classList.add('hidden');
+  });
+
+  function populateCampaignMarcas() {
+    if (!campaignMarcaSel) return;
+    campaignMarcaSel.innerHTML = allMarcas.map(m =>
+      `<option value="${m.nombre}">${m.nombre}</option>`
+    ).join('');
+  }
+
+  campaignScope?.addEventListener('change', () => {
+    campaignMarcaGroup?.classList.toggle('hidden', campaignScope.value !== 'brand');
+  });
+
+  function resetCampaignForm() {
+    const ids = ['campaignId','campaignNombre','campaignPorcentaje','campaignMensaje',
+                 'campaignCta','campaignInicia','campaignExpira'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    if (campaignScope) campaignScope.value = 'all';
+    campaignMarcaGroup?.classList.add('hidden');
+    const activo = document.getElementById('campaignActivo');
+    if (activo) activo.checked = true;
+    const title = document.getElementById('campaignFormTitle');
+    if (title) title.textContent = '+ NUEVA CAMPAÑA';
+  }
+
+  async function loadCampaigns() {
+    if (!campaignsList) return;
+    campaignsList.innerHTML = '<p class="empty-list">Cargando…</p>';
+    try {
+      const res  = await fetch(API + 'get_campaigns.php?all=1', { credentials: 'same-origin' });
+      const data = await res.json();
+      renderCampaigns(Array.isArray(data) ? data : []);
+    } catch {
+      campaignsList.innerHTML = '<p class="empty-list">Error cargando campañas.</p>';
+    }
+  }
+
+  function renderCampaigns(items) {
+    if (!items.length) {
+      campaignsList.innerHTML = '<p class="empty-list">Sin campañas todavía. Crea la primera abajo 👇</p>';
+      return;
+    }
+    const fmtDate = s => s ? new Date(s.replace(' ', 'T')).toLocaleString('es-CO',
+      { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const now = new Date();
+
+    campaignsList.innerHTML = items.map(c => {
+      const expired = c.expira_en && new Date(c.expira_en.replace(' ', 'T')) < now;
+      const status  = !c.activo ? 'pausada' : expired ? 'expirada' : 'activa';
+      const scopeText = c.scope === 'brand' ? `🏷️ ${c.marca}` : '✦ Todo el catálogo';
+      return `
+      <div class="campaign-row" data-id="${c.id}">
+        <div class="campaign-info">
+          <div class="campaign-top">
+            <span class="campaign-name">${c.nombre}</span>
+            <span class="campaign-pct">${c.porcentaje}% OFF</span>
+            <span class="campaign-status ${status}">${status}</span>
+          </div>
+          <div class="campaign-meta">
+            <span>${scopeText}</span>
+            <span>· Expira: ${fmtDate(c.expira_en)}</span>
+          </div>
+          <div class="campaign-msg">${c.mensaje}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn-action btn-edit" onclick="editCampaign(${c.id})">✏️ Editar</button>
+          <button class="btn-action btn-del"  onclick="deleteCampaign(${c.id})">Eliminar</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.editCampaign = async function(id) {
+    try {
+      const res  = await fetch(API + 'get_campaigns.php?all=1', { credentials: 'same-origin' });
+      const data = await res.json();
+      const c = data.find(x => x.id === id);
+      if (!c) return showFeedback('❌ Campaña no encontrada.', false);
+
+      document.getElementById('campaignId').value         = c.id;
+      document.getElementById('campaignNombre').value     = c.nombre;
+      document.getElementById('campaignPorcentaje').value = c.porcentaje;
+      campaignScope.value                                  = c.scope;
+      campaignMarcaGroup.classList.toggle('hidden', c.scope !== 'brand');
+      if (c.scope === 'brand') campaignMarcaSel.value = c.marca || '';
+      document.getElementById('campaignMensaje').value = c.mensaje;
+      document.getElementById('campaignCta').value     = c.cta_text || '';
+      document.getElementById('campaignActivo').checked = c.activo == 1;
+      document.getElementById('campaignInicia').value  = c.inicia_en ? c.inicia_en.replace(' ', 'T').slice(0, 16) : '';
+      document.getElementById('campaignExpira').value  = c.expira_en ? c.expira_en.replace(' ', 'T').slice(0, 16) : '';
+
+      const title = document.getElementById('campaignFormTitle');
+      if (title) title.textContent = `✏️ EDITANDO #${c.id}`;
+      campaignsModal?.querySelector('.modal-box')?.scrollTo({ top: 99999, behavior: 'smooth' });
+    } catch {
+      showFeedback('❌ Error cargando la campaña.', false);
+    }
+  };
+
+  window.deleteCampaign = async function(id) {
+    if (!confirm('¿Eliminar esta campaña? Esta acción no se puede deshacer.')) return;
+    const fd = new FormData();
+    fd.append('id', id);
+    try {
+      const res  = await fetch(API + 'delete_campaign.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        showFeedback(`✅ Campaña eliminada.`, true);
+        loadCampaigns();
+      } else {
+        showFeedback('❌ ' + data.message, false);
+      }
+    } catch { showFeedback('❌ Error de conexión.', false); }
+  };
+
+  document.getElementById('btnCancelCampaign')?.addEventListener('click', resetCampaignForm);
+
+  document.getElementById('btnSaveCampaign')?.addEventListener('click', async () => {
+    const fd = new FormData();
+    const id = document.getElementById('campaignId').value.trim();
+    if (id) fd.append('id', id);
+    fd.append('nombre',     document.getElementById('campaignNombre').value.trim());
+    fd.append('porcentaje', document.getElementById('campaignPorcentaje').value.trim());
+    fd.append('scope',      campaignScope.value);
+    if (campaignScope.value === 'brand') fd.append('marca', campaignMarcaSel.value);
+    fd.append('mensaje',    document.getElementById('campaignMensaje').value.trim());
+    fd.append('cta_text',   document.getElementById('campaignCta').value.trim());
+    fd.append('activo',     document.getElementById('campaignActivo').checked ? 1 : 0);
+    fd.append('inicia_en',  document.getElementById('campaignInicia').value);
+    fd.append('expira_en',  document.getElementById('campaignExpira').value);
+
+    try {
+      const res  = await fetch(API + 'save_campaign.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        showFeedback(`✅ Campaña ${id ? 'actualizada' : 'creada'}.`, true);
+        resetCampaignForm();
+        loadCampaigns();
+      } else {
+        showFeedback('❌ ' + data.message, false);
+      }
+    } catch { showFeedback('❌ Error de conexión.', false); }
+  });
 
   /* ════════════════════════════════════════════════
      MODAL CERRAR SESIÓN
