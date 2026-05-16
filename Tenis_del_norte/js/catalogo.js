@@ -92,21 +92,6 @@ async function fetchData() {
     const raw = Array.isArray(products) ? products : [];
     allItems = applyCampaigns(raw, Array.isArray(campaigns) ? campaigns : []);
     console.log('✅ BD cargada:', allItems.length, 'referencias · campañas activas:', campaigns?.length || 0);
-    const [productsRes, campaignsRes] = await Promise.all([
-      fetch(API_BASE + 'get_zapatos.php'),
-      fetch(API_BASE + 'get_campaigns.php').catch(() => null),
-    ]);
-    if (!productsRes.ok) throw new Error('HTTP ' + productsRes.status);
-
-    const products = await productsRes.json();
-    let campaigns  = [];
-    if (campaignsRes && campaignsRes.ok) {
-      try { campaigns = await campaignsRes.json(); } catch {}
-    }
-
-    const raw = Array.isArray(products) ? products : [];
-    allItems = applyCampaigns(raw, Array.isArray(campaigns) ? campaigns : []);
-    console.log('✅ BD cargada:', allItems.length, 'referencias · campañas activas:', campaigns?.length || 0);
   } catch (err) {
     console.warn('⚠️ Sin API, usando demo:', err.message);
     allItems = generateDemo();

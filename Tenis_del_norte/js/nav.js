@@ -190,8 +190,6 @@ function initScrollReveal() {
 /* ── INIT ────────────────────────────────────────── */
 /* ── Anuncio dinámico — vinculado a campañas activas ── */
 async function injectAnnouncement() {
-/* ── Anuncio dinámico — vinculado a campañas activas ── */
-async function injectAnnouncement() {
   /* No mostrar en el panel admin */
   if (window.location.pathname.includes('/admin')) return;
 
@@ -206,20 +204,7 @@ async function injectAnnouncement() {
   } catch { /* sin campañas → no mostrar barra */ }
 
   if (!campaign) return;
-  let campaign = null;
-  try {
-    const res  = await fetch('/api/get_campaigns.php');
-    const data = await res.json();
-    if (Array.isArray(data) && data.length) {
-      /* La API ya devuelve ordenado por expira_en ASC → la más urgente primero */
-      campaign = data[0];
-    }
-  } catch { /* sin campañas → no mostrar barra */ }
 
-  if (!campaign) return;
-
-  /* Clave por campaña: si el usuario cierra una, otra sí aparece */
-  const STORAGE_KEY = 'tdn_announce_' + campaign.id;
   /* Clave por campaña: si el usuario cierra una, otra sí aparece */
   const STORAGE_KEY = 'tdn_announce_' + campaign.id;
   if (sessionStorage.getItem(STORAGE_KEY) === 'closed') return;
