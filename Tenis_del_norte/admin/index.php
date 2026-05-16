@@ -45,6 +45,7 @@ $_SESSION['last_activity'] = time();
     </a>
     <div class="admin-header-right">
       <a href="/" class="back-link">← Ver sitio</a>
+      <button class="btn-campaigns" id="btnCampaigns" type="button">📢 Campañas</button>
       <button class="btn-logout" id="btnLogout" type="button">Cerrar sesión</button>
     </div>
   </header>
@@ -70,17 +71,12 @@ $_SESSION['last_activity'] = time();
       <div class="form-row">
         <div class="form-group">
           <label for="marca">Marca *</label>
-          <select id="marca">
-            <option value="Nike">Nike</option>
-            <option value="Adidas">Adidas</option>
-            <option value="Puma">Puma</option>
-            <option value="New Balance">New Balance</option>
-            <option value="Jordan">Jordan</option>
-            <option value="Reebok">Reebok</option>
-            <option value="Vans">Vans</option>
-            <option value="Converse">Converse</option>
-            <option value="Otra">Otra</option>
-          </select>
+          <div class="marca-input-wrap">
+            <select id="marca">
+              <option value="">Cargando marcas…</option>
+            </select>
+            <button type="button" class="btn-add-marca" id="btnAddMarca" title="Añadir nueva marca">+</button>
+          </div>
         </div>
         <div class="form-group">
           <label for="categoria">Categoría *</label>
@@ -150,15 +146,6 @@ $_SESSION['last_activity'] = time();
         <input type="text" id="searchInput" placeholder="🔍 Buscar por referencia, marca o código..."/>
         <select id="filterBrand">
           <option value="all">Todas las marcas</option>
-          <option value="Nike">Nike</option>
-          <option value="Adidas">Adidas</option>
-          <option value="Puma">Puma</option>
-          <option value="New Balance">New Balance</option>
-          <option value="Jordan">Jordan</option>
-          <option value="Reebok">Reebok</option>
-          <option value="Vans">Vans</option>
-          <option value="Converse">Converse</option>
-          <option value="Otra">Otra</option>
         </select>
       </div>
 
@@ -199,6 +186,84 @@ $_SESSION['last_activity'] = time();
     </div>
   </div>
 
+  <!-- MODAL EDITAR PRODUCTO -->
+  <div class="modal-overlay hidden" id="editModal">
+    <div class="modal-box modal-edit">
+      <span class="modal-icon">✏️</span>
+      <h3>EDITAR REFERENCIA</h3>
+      <p id="editModalRef">Modifica los campos que necesites.</p>
+
+      <div class="form-group">
+        <label for="editMarca">Marca</label>
+        <select id="editMarca"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="editCategoria">Categoría</label>
+        <select id="editCategoria">
+          <option value="hombre">👟 Hombre</option>
+          <option value="mujer">👠 Mujer</option>
+          <option value="unisex">✦ Unisex (Hombre + Mujer)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editPrecio">Precio normal (COP)</label>
+        <div class="price-input-wrap">
+          <span class="price-symbol">$</span>
+          <input type="number" id="editPrecio" placeholder="180000" min="0" step="1000"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>¿Promoción?</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="editPromoToggle"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Marcar como ⚡ Promo</span>
+        </div>
+      </div>
+
+      <div class="form-group promo-price-group hidden" id="editPromoPriceGroup">
+        <label for="editPrecioPromo">Precio en promo (COP) <span class="promo-label-badge">⚡ PROMO</span></label>
+        <div class="price-input-wrap promo">
+          <span class="price-symbol">$</span>
+          <input type="number" id="editPrecioPromo" placeholder="149000" min="0" step="1000"/>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel"      id="btnCancelEdit">Cancelar</button>
+        <button class="btn-confirm-del" id="btnConfirmEdit"
+                style="background:var(--gold);color:var(--navy);box-shadow:0 4px 16px rgba(245,197,24,0.35);">
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AÑADIR MARCA -->
+  <div class="modal-overlay hidden" id="addMarcaModal">
+    <div class="modal-box">
+      <span class="modal-icon">🏷️</span>
+      <h3>NUEVA MARCA</h3>
+      <p>Añade una marca que no esté en la lista.</p>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label for="newMarcaName">Nombre de la marca</label>
+        <input type="text" id="newMarcaName" placeholder="Ej: Lacoste" maxlength="100"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelMarca">Cancelar</button>
+        <button class="btn-confirm-del" id="btnConfirmMarca"
+                style="background:var(--gold);color:var(--navy);box-shadow:0 4px 16px rgba(245,197,24,0.35);">
+          Añadir
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL ELIMINAR -->
   <div class="modal-overlay hidden" id="modalOverlay">
     <div class="modal-box">
@@ -209,6 +274,96 @@ $_SESSION['last_activity'] = time();
       <div class="modal-actions">
         <button class="btn-cancel"      id="btnCancelDelete">Cancelar</button>
         <button class="btn-confirm-del" id="btnConfirmDelete">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CAMPAÑAS MASIVAS -->
+  <div class="modal-overlay hidden" id="campaignsModal">
+    <div class="modal-box modal-campaigns">
+      <button class="modal-close-x" id="btnCloseCampaigns" aria-label="Cerrar">✕</button>
+      <span class="modal-icon">📢</span>
+      <h3>CAMPAÑAS MASIVAS</h3>
+      <p>Aplica un descuento porcentual a todo el catálogo o a una marca específica. El anuncio aparece automáticamente en el sitio.</p>
+
+      <!-- Lista de campañas -->
+      <div class="campaigns-list" id="campaignsList">
+        <p class="empty-list">Cargando…</p>
+      </div>
+
+      <div class="campaigns-divider"></div>
+
+      <!-- Formulario crear / editar -->
+      <h4 id="campaignFormTitle" style="font-family:var(--font-d);letter-spacing:2px;color:var(--gold);margin-bottom:14px;">+ NUEVA CAMPAÑA</h4>
+
+      <input type="hidden" id="campaignId" value=""/>
+
+      <div class="form-group">
+        <label for="campaignNombre">Nombre interno *</label>
+        <input type="text" id="campaignNombre" placeholder="Ej: Black Friday 2026" maxlength="150"/>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campaignPorcentaje">Descuento % *</label>
+          <input type="number" id="campaignPorcentaje" placeholder="10" min="1" max="99"/>
+        </div>
+        <div class="form-group">
+          <label for="campaignScope">Aplica a *</label>
+          <select id="campaignScope">
+            <option value="all">✦ Todo el catálogo</option>
+            <option value="brand">🏷️ Una marca</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="campaignMarcaGroup">
+        <label for="campaignMarca">Marca</label>
+        <select id="campaignMarca"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="campaignMensaje">Mensaje del anuncio *</label>
+        <textarea id="campaignMensaje" rows="2"
+                  placeholder="Ej: 🔥 ¡10% OFF en todo el catálogo este fin de semana!"
+                  maxlength="500"></textarea>
+        <p class="price-hint">Puedes usar HTML básico: &lt;strong&gt;texto&lt;/strong&gt;</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campaignCta">Texto del botón</label>
+          <input type="text" id="campaignCta" placeholder="Ver ahora" maxlength="60"/>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="campaignActivo" checked/>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Activa</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campaignInicia">Inicia (opcional)</label>
+          <input type="datetime-local" id="campaignInicia"/>
+        </div>
+        <div class="form-group">
+          <label for="campaignExpira">Expira *</label>
+          <input type="datetime-local" id="campaignExpira"/>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelCampaign">Limpiar</button>
+        <button class="btn-confirm-del" id="btnSaveCampaign"
+                style="background:var(--gold);color:var(--navy);box-shadow:0 4px 16px rgba(245,197,24,0.35);">
+          Guardar campaña
+        </button>
       </div>
     </div>
   </div>

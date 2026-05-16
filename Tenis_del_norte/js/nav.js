@@ -188,33 +188,36 @@ function initScrollReveal() {
 }
 
 /* ── INIT ────────────────────────────────────────── */
-/* ── Anuncio flotante ─────────────────────────────── */
-function injectAnnouncement() {
+/* ── Anuncio dinámico — vinculado a campañas activas ── */
+async function injectAnnouncement() {
   /* No mostrar en el panel admin */
   if (window.location.pathname.includes('/admin')) return;
 
-  const STORAGE_KEY = 'tdn_announce_v2';
-  const MSGS = [
-    '🔥 <strong>¡Stock limitado!</strong> Nuevas referencias Nike y Jordan disponibles. ¡Pregunta antes de que se agoten!',
-    '⚡ <strong>Promos activas</strong> · Hasta 30% OFF en modelos seleccionados. Solo por tiempo limitado.',
-    '🚚 <strong>Envíos a todo el norte de Antioquia</strong> · Contra entrega o Nequi. Rápido y seguro.',
-    '✅ <strong>+500 clientes satisfechos</strong> · Compra con confianza. Respuesta en WhatsApp en minutos.',
-  ];
-  const MSG = MSGS[new Date().getDay() % MSGS.length];
+  let campaign = null;
+  try {
+    const res  = await fetch('/api/get_campaigns.php');
+    const data = await res.json();
+    if (Array.isArray(data) && data.length) {
+      /* La API ya devuelve ordenado por expira_en ASC → la más urgente primero */
+      campaign = data[0];
+    }
+  } catch { /* sin campañas → no mostrar barra */ }
 
-  /* Si ya fue cerrado en esta sesión, no mostrar */
+  if (!campaign) return;
+
+  /* Clave por campaña: si el usuario cierra una, otra sí aparece */
+  const STORAGE_KEY = 'tdn_announce_' + campaign.id;
   if (sessionStorage.getItem(STORAGE_KEY) === 'closed') return;
 
   const bar = document.createElement('div');
   bar.id = 'announceBar';
   bar.innerHTML = `
-    <span class="announce-msg">${MSG}</span>
+    <span class="announce-msg">${campaign.mensaje}</span>
     <a href="${WA_HELP_LINK}" target="_blank" rel="noopener" class="announce-cta">
-      Ver ahora
+      ${campaign.cta_text || 'Ver ahora'}
     </a>
     <button class="announce-close" id="announceClose" aria-label="Cerrar anuncio">✕</button>
   `;
-  /* Insertar ANTES del nav para que quede encima */
   document.body.insertBefore(bar, document.body.firstChild);
 
   document.getElementById('announceClose')?.addEventListener('click', () => {
