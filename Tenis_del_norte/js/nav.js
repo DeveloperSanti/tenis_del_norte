@@ -213,8 +213,8 @@ async function injectAnnouncement() {
   bar.id = 'announceBar';
   bar.innerHTML = `
     <span class="announce-msg">${campaign.mensaje}</span>
-    <a href="${WA_HELP_LINK}" target="_blank" rel="noopener" class="announce-cta">
-      ${campaign.cta_text || 'Ver ahora'}
+    <a href="/?tab=promo" class="announce-cta">
+      ${campaign.cta_text || 'Ver promos'}
     </a>
     <button class="announce-close" id="announceClose" aria-label="Cerrar anuncio">✕</button>
   `;

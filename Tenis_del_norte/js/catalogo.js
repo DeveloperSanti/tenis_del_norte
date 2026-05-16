@@ -99,8 +99,26 @@ async function fetchData() {
   showLoader(false);
   updateBrandSelect();
   updateTabCounts();
+  applyTabFromURL();
   resetAndRender();
   deepLinkInit();
+}
+
+/* Lee ?tab=hombre|mujer|promo de la URL y activa esa pestaña.
+   Lo usa el botón de anuncio de campañas para enviar al usuario a /?tab=promo */
+function applyTabFromURL() {
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  if (!tab || !['hombre', 'mujer', 'promo'].includes(tab)) return;
+  currentCat = tab;
+  document.querySelectorAll('.main-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === tab);
+  });
+  updateBrandSelect();
+
+  /* Limpiar el parámetro tab de la URL para que no quede pegado al navegar */
+  const u = new URL(window.location.href);
+  u.searchParams.delete('tab');
+  window.history.replaceState({}, '', u.pathname + (u.searchParams.toString() ? '?' + u.searchParams.toString() : ''));
 }
 
 /* Aplica campañas activas a productos sin promo individual.
