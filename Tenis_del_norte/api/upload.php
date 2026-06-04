@@ -13,6 +13,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 require_once 'config.php';
+require_once '_img_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success'=>false,'message'=>'Método no permitido.']); exit;
@@ -65,54 +66,7 @@ $outExt    = $useWebp ? 'webp' : 'jpg';
 $fullName  = $base . '.' . $outExt;
 $thumbName = $base . '_thumb.' . $outExt;
 
-/**
- * Redimensiona (solo reduce) y guarda optimizado.
- * Devuelve true/false.
- */
-function procesarImagen($srcTmp, $mime, $destPath, $maxLado, $calidad, $useWebp) {
-    switch ($mime) {
-        case 'image/jpeg':
-        case 'image/jpg':  $img = @imagecreatefromjpeg($srcTmp); break;
-        case 'image/png':  $img = @imagecreatefrompng($srcTmp);  break;
-        case 'image/webp': $img = @imagecreatefromwebp($srcTmp); break;
-        default: return false;
-    }
-    if (!$img) return false;
-
-    $w = imagesx($img);
-    $h = imagesy($img);
-    if ($w < 1 || $h < 1) { imagedestroy($img); return false; }
-
-    $escala = min(1, $maxLado / max($w, $h));   // nunca ampliar
-    $nw = max(1, (int)round($w * $escala));
-    $nh = max(1, (int)round($h * $escala));
-
-    $dst = imagecreatetruecolor($nw, $nh);
-
-    if ($useWebp) {
-        // WebP conserva transparencia
-        imagealphablending($dst, false);
-        imagesavealpha($dst, true);
-        $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
-        imagefilledrectangle($dst, 0, 0, $nw, $nh, $transparent);
-    } else {
-        // JPG no soporta alpha → fondo blanco
-        $white = imagecolorallocate($dst, 255, 255, 255);
-        imagefilledrectangle($dst, 0, 0, $nw, $nh, $white);
-    }
-
-    imagecopyresampled($dst, $img, 0, 0, 0, 0, $nw, $nh, $w, $h);
-
-    $ok = $useWebp
-        ? imagewebp($dst, $destPath, $calidad)
-        : imagejpeg($dst, $destPath, $calidad);
-
-    imagedestroy($img);
-    imagedestroy($dst);
-    return $ok;
-}
-
-// ── Generar full + thumb ─────────────────────────────
+// ── Generar full + thumb (procesarImagen viene de _img_utils.php) ──
 $fullOk  = procesarImagen($_FILES['foto']['tmp_name'], $mime, $uploadDir . $fullName,  1080, 82, $useWebp);
 $thumbOk = procesarImagen($_FILES['foto']['tmp_name'], $mime, $uploadDir . $thumbName,  450, 78, $useWebp);
 
