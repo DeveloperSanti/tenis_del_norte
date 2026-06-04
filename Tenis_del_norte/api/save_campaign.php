@@ -6,8 +6,9 @@
  *   [id]          opcional → si viene, actualiza; si no, crea
  *   nombre        string
  *   porcentaje    1-99
- *   scope         'all' | 'brand'
+ *   scope         'all' | 'brand' | 'gender'
  *   marca         requerido si scope=brand
+ *   genero        requerido si scope=gender ('hombre'|'mujer')
  *   mensaje       texto
  *   cta_text      string (opcional, default 'Ver ahora')
  *   activo        0|1
@@ -36,6 +37,7 @@ $nombre     = trim($_POST['nombre']     ?? '');
 $porcentaje = intval($_POST['porcentaje'] ?? 0);
 $scope      = trim($_POST['scope']      ?? 'all');
 $marca      = trim($_POST['marca']      ?? '');
+$genero     = trim($_POST['genero']     ?? '');
 $mensaje    = trim($_POST['mensaje']    ?? '');
 $cta_text   = trim($_POST['cta_text']   ?? 'Ver ahora') ?: 'Ver ahora';
 $activo     = intval($_POST['activo']   ?? 1) === 1 ? 1 : 0;
@@ -45,9 +47,14 @@ $expira_en  = trim($_POST['expira_en']  ?? '');
 // ── Validaciones ────────────────────────────────────
 if ($nombre === '')                          { echo json_encode(['success'=>false,'message'=>'Falta el nombre.']); exit; }
 if ($porcentaje < 1 || $porcentaje > 99)     { echo json_encode(['success'=>false,'message'=>'El porcentaje debe estar entre 1 y 99.']); exit; }
-if (!in_array($scope, ['all','brand'], true)){ echo json_encode(['success'=>false,'message'=>'Alcance inválido.']); exit; }
+if (!in_array($scope, ['all','brand','gender'], true)){ echo json_encode(['success'=>false,'message'=>'Alcance inválido.']); exit; }
 if ($scope === 'brand' && $marca === '')     { echo json_encode(['success'=>false,'message'=>'Selecciona una marca.']); exit; }
-if ($scope === 'all')                          $marca = null;
+if ($scope === 'gender' && !in_array($genero, ['hombre','mujer'], true)) {
+    echo json_encode(['success'=>false,'message'=>'Selecciona un género (hombre o mujer).']); exit;
+}
+// Limpiar campos que no apliquen al scope elegido
+if ($scope !== 'brand')  $marca  = null;
+if ($scope !== 'gender') $genero = null;
 if ($mensaje === '')                         { echo json_encode(['success'=>false,'message'=>'Falta el mensaje del anuncio.']); exit; }
 if ($expira_en === '')                       { echo json_encode(['success'=>false,'message'=>'Falta la fecha de expiración.']); exit; }
 
@@ -59,12 +66,12 @@ try {
     if ($id > 0) {
         $stmt = $pdo->prepare(
             "UPDATE promo_campaigns
-             SET nombre=:n, porcentaje=:p, scope=:s, marca=:m, mensaje=:msg,
+             SET nombre=:n, porcentaje=:p, scope=:s, marca=:m, genero=:g, mensaje=:msg,
                  cta_text=:cta, activo=:a, inicia_en=:ini, expira_en=:exp
              WHERE id=:id"
         );
         $stmt->execute([
-            ':n'=>$nombre, ':p'=>$porcentaje, ':s'=>$scope, ':m'=>$marca,
+            ':n'=>$nombre, ':p'=>$porcentaje, ':s'=>$scope, ':m'=>$marca, ':g'=>$genero,
             ':msg'=>$mensaje, ':cta'=>$cta_text, ':a'=>$activo,
             ':ini'=>$inicia_en, ':exp'=>$expira_en, ':id'=>$id,
         ]);
@@ -72,11 +79,11 @@ try {
     } else {
         $stmt = $pdo->prepare(
             "INSERT INTO promo_campaigns
-             (nombre, porcentaje, scope, marca, mensaje, cta_text, activo, inicia_en, expira_en)
-             VALUES (:n, :p, :s, :m, :msg, :cta, :a, :ini, :exp)"
+             (nombre, porcentaje, scope, marca, genero, mensaje, cta_text, activo, inicia_en, expira_en)
+             VALUES (:n, :p, :s, :m, :g, :msg, :cta, :a, :ini, :exp)"
         );
         $stmt->execute([
-            ':n'=>$nombre, ':p'=>$porcentaje, ':s'=>$scope, ':m'=>$marca,
+            ':n'=>$nombre, ':p'=>$porcentaje, ':s'=>$scope, ':m'=>$marca, ':g'=>$genero,
             ':msg'=>$mensaje, ':cta'=>$cta_text, ':a'=>$activo,
             ':ini'=>$inicia_en, ':exp'=>$expira_en,
         ]);

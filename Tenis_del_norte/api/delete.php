@@ -29,8 +29,8 @@ if ($id <= 0) {
 }
 
 try {
-    // Buscar la imagen antes de borrar
-    $stmt = $pdo->prepare("SELECT imagen_url FROM tenis WHERE id = :id");
+    // Buscar las imágenes antes de borrar
+    $stmt = $pdo->prepare("SELECT imagen_url, thumb_url FROM tenis WHERE id = :id");
     $stmt->execute([':id' => $id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -43,10 +43,13 @@ try {
     $del = $pdo->prepare("DELETE FROM tenis WHERE id = :id");
     $del->execute([':id' => $id]);
 
-    // Borrar el archivo de imagen
-    $imagePath = __DIR__ . '/../' . $row['imagen_url'];
-    if (file_exists($imagePath)) {
-        unlink($imagePath);
+    // Borrar los archivos de imagen (full + thumb, evitando borrar dos veces si son el mismo)
+    $borrados = [];
+    foreach ([$row['imagen_url'], $row['thumb_url']] as $rel) {
+        if (!$rel || in_array($rel, $borrados, true)) continue;
+        $path = __DIR__ . '/../' . $rel;
+        if (file_exists($path)) unlink($path);
+        $borrados[] = $rel;
     }
 
     echo json_encode(['success' => true, 'message' => "Tenis #$id eliminado."]);

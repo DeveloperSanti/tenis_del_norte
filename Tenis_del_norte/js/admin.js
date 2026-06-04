@@ -165,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
      SUBIR REFERENCIA
   ════════════════════════════════════════════════ */
   submitBtn?.addEventListener('click', async () => {
-    const referencia  = document.getElementById('referencia')?.value.trim();
     const marca       = document.getElementById('marca')?.value;
     const categoria   = document.getElementById('categoria')?.value;
     const isPromo     = promoToggle?.checked ? 1 : 0;
@@ -173,12 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const precioPromo = document.getElementById('precioPromo')?.value.trim();
     const foto        = fotoInput?.files[0];
 
-    // Validación front
-    if (!referencia) { showFeedback('⚠️ Ingresa el número de referencia.', false); return; }
-    if (!foto)       { showFeedback('⚠️ Selecciona una foto antes de subir.', false); return; }
+    // Validación front (la referencia se genera sola en el servidor)
+    if (!marca) { showFeedback('⚠️ Selecciona una marca.', false); return; }
+    if (!foto)  { showFeedback('⚠️ Selecciona una foto antes de subir.', false); return; }
 
     const fd = new FormData();
-    fd.append('referencia',   referencia);
     fd.append('marca',        marca);
     fd.append('categoria',    categoria);
     fd.append('promocion',    isPromo);
@@ -206,9 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (data.success) {
-        showFeedback(`✅ Referencia "${referencia}" subida con código #${data.id}`, true);
+        showFeedback(`✅ Subido como ${data.referencia} (#${data.id})`, true);
         // Limpiar formulario
-        document.getElementById('referencia').value  = '';
         const precioEl = document.getElementById('precio');
         const ppEl     = document.getElementById('precioPromo');
         if (precioEl) precioEl.value = '';
@@ -281,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fallbackSVG = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='52' height='52'><rect width='52' height='52' fill='%231c2f5e'/><text x='26' y='34' font-size='22' text-anchor='middle'>👟</text></svg>`;
 
     zapatoList.innerHTML = items.map(z => {
-      const rawImg = z.imagen_url || '';
+      const rawImg = z.thumb_url || z.imagen_url || '';
       const imgSrc = rawImg ? IMG_BASE + rawImg.replace('uploads/', '') : fallbackSVG;
 
       let precioHTML = '';
@@ -524,8 +521,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCampaigns   = document.getElementById('btnCampaigns');
   const campaignsList  = document.getElementById('campaignsList');
   const campaignScope  = document.getElementById('campaignScope');
-  const campaignMarcaGroup = document.getElementById('campaignMarcaGroup');
-  const campaignMarcaSel   = document.getElementById('campaignMarca');
+  const campaignMarcaGroup  = document.getElementById('campaignMarcaGroup');
+  const campaignMarcaSel    = document.getElementById('campaignMarca');
+  const campaignGeneroGroup = document.getElementById('campaignGeneroGroup');
+  const campaignGeneroSel   = document.getElementById('campaignGenero');
 
   btnCampaigns?.addEventListener('click', () => {
     populateCampaignMarcas();
@@ -547,16 +546,18 @@ document.addEventListener('DOMContentLoaded', () => {
     ).join('');
   }
 
-  campaignScope?.addEventListener('change', () => {
-    campaignMarcaGroup?.classList.toggle('hidden', campaignScope.value !== 'brand');
-  });
+  function syncScopeFields() {
+    campaignMarcaGroup?.classList.toggle('hidden',  campaignScope.value !== 'brand');
+    campaignGeneroGroup?.classList.toggle('hidden', campaignScope.value !== 'gender');
+  }
+  campaignScope?.addEventListener('change', syncScopeFields);
 
   function resetCampaignForm() {
     const ids = ['campaignId','campaignNombre','campaignPorcentaje','campaignMensaje',
                  'campaignCta','campaignInicia','campaignExpira'];
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     if (campaignScope) campaignScope.value = 'all';
-    campaignMarcaGroup?.classList.add('hidden');
+    syncScopeFields();
     const activo = document.getElementById('campaignActivo');
     if (activo) activo.checked = true;
     const title = document.getElementById('campaignFormTitle');
@@ -587,7 +588,10 @@ document.addEventListener('DOMContentLoaded', () => {
     campaignsList.innerHTML = items.map(c => {
       const expired = c.expira_en && new Date(c.expira_en.replace(' ', 'T')) < now;
       const status  = !c.activo ? 'pausada' : expired ? 'expirada' : 'activa';
-      const scopeText = c.scope === 'brand' ? `🏷️ ${c.marca}` : '✦ Todo el catálogo';
+      const scopeText =
+        c.scope === 'brand'  ? `🏷️ ${c.marca}` :
+        c.scope === 'gender' ? `⚥ ${c.genero === 'mujer' ? 'Mujer' : 'Hombre'}` :
+        '✦ Todo el catálogo';
       return `
       <div class="campaign-row" data-id="${c.id}">
         <div class="campaign-info">
@@ -621,8 +625,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('campaignNombre').value     = c.nombre;
       document.getElementById('campaignPorcentaje').value = c.porcentaje;
       campaignScope.value                                  = c.scope;
-      campaignMarcaGroup.classList.toggle('hidden', c.scope !== 'brand');
-      if (c.scope === 'brand') campaignMarcaSel.value = c.marca || '';
+      syncScopeFields();
+      if (c.scope === 'brand')  campaignMarcaSel.value  = c.marca  || '';
+      if (c.scope === 'gender') campaignGeneroSel.value = c.genero || 'hombre';
       document.getElementById('campaignMensaje').value = c.mensaje;
       document.getElementById('campaignCta').value     = c.cta_text || '';
       document.getElementById('campaignActivo').checked = c.activo == 1;
@@ -662,7 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fd.append('nombre',     document.getElementById('campaignNombre').value.trim());
     fd.append('porcentaje', document.getElementById('campaignPorcentaje').value.trim());
     fd.append('scope',      campaignScope.value);
-    if (campaignScope.value === 'brand') fd.append('marca', campaignMarcaSel.value);
+    if (campaignScope.value === 'brand')  fd.append('marca',  campaignMarcaSel.value);
+    if (campaignScope.value === 'gender') fd.append('genero', campaignGeneroSel.value);
     fd.append('mensaje',    document.getElementById('campaignMensaje').value.trim());
     fd.append('cta_text',   document.getElementById('campaignCta').value.trim());
     fd.append('activo',     document.getElementById('campaignActivo').checked ? 1 : 0);

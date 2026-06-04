@@ -28,7 +28,7 @@ if ($categoria && in_array($categoria, ['hombre','mujer','unisex'])) {
 if ($marca)      { $where[] = 'marca = :marca';    $params[':marca'] = $marca; }
 if ($promo==='1') { $where[] = 'promocion = 1'; }
 
-$sql = "SELECT id, referencia, marca, categoria, imagen_url, promocion, precio, precio_promo
+$sql = "SELECT id, referencia, marca, categoria, imagen_url, thumb_url, promocion, precio, precio_promo
         FROM tenis";
 if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY id DESC';

@@ -58,14 +58,10 @@ $_SESSION['last_activity'] = time();
 
       <div class="info-box">
         <p>
+          La <strong>referencia se genera sola</strong> al subir (TN-0001, TN-0002…).
           Si marcas como <strong>Unisex</strong>, aparecerá en Hombre y Mujer.
           Si activas <strong>Promo</strong>, aparecerá un campo para el precio especial.
         </p>
-      </div>
-
-      <div class="form-group">
-        <label for="referencia">Número de referencia *</label>
-        <input type="text" id="referencia" placeholder="Ej: NK-2024 o REF-0042"/>
       </div>
 
       <div class="form-row">
@@ -313,6 +309,7 @@ $_SESSION['last_activity'] = time();
           <select id="campaignScope">
             <option value="all">✦ Todo el catálogo</option>
             <option value="brand">🏷️ Una marca</option>
+            <option value="gender">⚥ Un género</option>
           </select>
         </div>
       </div>
@@ -320,6 +317,15 @@ $_SESSION['last_activity'] = time();
       <div class="form-group hidden" id="campaignMarcaGroup">
         <label for="campaignMarca">Marca</label>
         <select id="campaignMarca"></select>
+      </div>
+
+      <div class="form-group hidden" id="campaignGeneroGroup">
+        <label for="campaignGenero">Género</label>
+        <select id="campaignGenero">
+          <option value="hombre">👟 Hombre</option>
+          <option value="mujer">👠 Mujer</option>
+        </select>
+        <p class="price-hint">Aplica a productos de esa categoría. Los unisex no se incluyen en promos de género.</p>
       </div>
 
       <div class="form-group">

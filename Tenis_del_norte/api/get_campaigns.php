@@ -16,14 +16,14 @@ $showAll = $isAdmin && (($_GET['all'] ?? '') === '1');
 try {
     if ($showAll) {
         $stmt = $pdo->query(
-            "SELECT id, nombre, porcentaje, scope, marca, mensaje, cta_text, activo,
+            "SELECT id, nombre, porcentaje, scope, marca, genero, mensaje, cta_text, activo,
                     inicia_en, expira_en, creado_en
              FROM promo_campaigns
              ORDER BY activo DESC, expira_en DESC"
         );
     } else {
         $stmt = $pdo->prepare(
-            "SELECT id, nombre, porcentaje, scope, marca, mensaje, cta_text,
+            "SELECT id, nombre, porcentaje, scope, marca, genero, mensaje, cta_text,
                     inicia_en, expira_en
              FROM promo_campaigns
              WHERE activo = 1

@@ -123,15 +123,20 @@ function applyTabFromURL() {
 
 /* Aplica campañas activas a productos sin promo individual.
    Regla: si el producto ya tiene promocion=1, se respeta su precio_promo.
-   Campañas de marca específica ganan sobre campañas globales. */
+   Prioridad cuando varias aplican: marca > género > global.
+   Nota: las campañas de género aplican a categoria EXACTA (hombre/mujer);
+   los unisex solo entran en campañas de marca o globales para evitar
+   que un mismo producto tenga precio distinto en pestañas diferentes. */
 function applyCampaigns(items, campaigns) {
   if (!campaigns.length) return items;
 
-  const brandMap = {};
-  let globalCamp = null;
+  const brandMap  = {};
+  const genderMap = {};
+  let globalCamp  = null;
   campaigns.forEach(c => {
-    if (c.scope === 'brand' && c.marca) brandMap[c.marca] = c;
-    else if (c.scope === 'all' && !globalCamp) globalCamp = c;
+    if      (c.scope === 'brand'  && c.marca)  brandMap[c.marca]   = brandMap[c.marca]   || c;
+    else if (c.scope === 'gender' && c.genero) genderMap[c.genero] = genderMap[c.genero] || c;
+    else if (c.scope === 'all'    && !globalCamp) globalCamp = c;
   });
 
   return items.map(item => {
@@ -139,7 +144,7 @@ function applyCampaigns(items, campaigns) {
     if (item.promocion == 1 && item.precio_promo) return item;
     if (!item.precio || item.precio <= 0) return item;
 
-    const camp = brandMap[item.marca] || globalCamp;
+    const camp = brandMap[item.marca] || genderMap[item.categoria] || globalCamp;
     if (!camp) return item;
 
     /* Calcular precio rebajado, redondeado a miles para verse limpio */
@@ -249,14 +254,19 @@ function buildCard(item, index) {
   );
   const waLink = `https://wa.me/${WA_NUMBER}?text=${waMsg}`;
 
-  const rawUrl = item.imagen_url || '';
-  const imgSrc = rawUrl ? IMG_BASE + rawUrl.replace('uploads/', '') : makePlaceholder(item.marca, item.referencia);
+  /* Tarjetas usan la miniatura (thumb_url) — mucho más liviana.
+     Fallback a imagen_url para registros antiguos sin thumb. */
+  const thumbRaw = item.thumb_url || item.imagen_url || '';
+  const imgSrc   = thumbRaw ? IMG_BASE + thumbRaw.replace('uploads/', '') : makePlaceholder(item.marca, item.referencia);
+  const fullRaw  = item.imagen_url || thumbRaw;
+  const fullSrc  = fullRaw ? IMG_BASE + fullRaw.replace('uploads/', '') : imgSrc;
   const showUnisex = item.categoria === 'unisex' && currentCat !== 'promo';
 
   card.innerHTML = `
     ${item.promocion == 1 ? '<span class="badge-promo">⚡ PROMO</span>' : ''}
     ${showUnisex           ? '<span class="badge-unisex">UNISEX</span>' : ''}
-    <img src="${imgSrc}" alt="${item.marca} ${item.referencia}" loading="lazy"/>
+    <img src="${imgSrc}" alt="${item.marca} ${item.referencia}" loading="lazy" decoding="async"
+         width="400" height="400" onerror="this.onerror=null;this.src='${fullSrc}'"/>
     <div class="card-foot">
       <div class="card-foot-left">
         <span class="card-brand">${item.marca}</span>
@@ -477,10 +487,19 @@ function openLightbox(item, index, items) {
 }
 
 function fillLightbox(item) {
-  const rawUrl = item.imagen_url || '';
-  lbImg.src = rawUrl
-    ? IMG_BASE + rawUrl.replace('uploads/', '')
-    : makePlaceholder(item.marca, item.referencia);
+  const fullRaw  = item.imagen_url || item.thumb_url || '';
+  const thumbRaw = item.thumb_url  || item.imagen_url || '';
+  const fullSrc  = fullRaw  ? IMG_BASE + fullRaw.replace('uploads/', '')  : makePlaceholder(item.marca, item.referencia);
+  const thumbSrc = thumbRaw ? IMG_BASE + thumbRaw.replace('uploads/', '') : fullSrc;
+
+  /* Mostrar la miniatura al instante (suele estar en caché desde la tarjeta),
+     y cargar la imagen completa por detrás para nitidez/zoom. */
+  lbImg.src = thumbSrc;
+  if (fullSrc !== thumbSrc) {
+    const hi = new Image();
+    hi.onload = () => { lbImg.src = fullSrc; };
+    hi.src = fullSrc;
+  }
   lbImg.alt = `${item.marca} ${item.referencia}`;
   lbImg.classList.remove('zoomed');
 
