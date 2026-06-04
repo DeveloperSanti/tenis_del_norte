@@ -426,45 +426,86 @@ footer {
 }
 
 /* ══════════════════════════════════════════════════
-   BARRA DE ANUNCIO — aparece encima del nav
+   ANUNCIO DE CAMPAÑA — tarjeta flotante inferior izq
 ══════════════════════════════════════════════════ */
 #announceBar {
-  position: sticky; top: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-  gap: 12px; flex-wrap: wrap;
-  padding: 10px 16px;
-  background: linear-gradient(90deg, var(--navy-mid) 0%, #1a3060 50%, var(--navy-mid) 100%);
-  border-bottom: 1px solid rgba(245,197,24,0.25);
-  transition: transform 0.3s ease;
+  position: fixed;
+  bottom: 24px; left: 20px;
+  z-index: 150;
+  max-width: 340px;
+  display: flex; flex-direction: column;
+  gap: 10px;
+  padding: 18px 36px 16px 18px;
+  background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+  border: 1px solid rgba(245,197,24,0.35);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,20,0.5),
+              0 0 0 1px rgba(245,197,24,0.08);
+  animation: announceSlideIn 0.5s 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
+#announceBar::before {
+  content: '⚡ OFERTA';
+  position: absolute;
+  top: -10px; left: 16px;
+  background: var(--gold); color: var(--navy);
+  font-family: var(--font-b); font-size: 9px; font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 3px 10px; border-radius: 100px;
+  box-shadow: 0 4px 12px rgba(245,197,24,0.4);
+}
+
 .announce-msg {
   font-size: 13px; color: var(--off-white);
-  text-align: center; line-height: 1.5;
-  flex: 1; min-width: 200px;
+  line-height: 1.5; text-align: left;
 }
 .announce-msg strong { color: var(--gold); }
 
 .announce-cta {
+  align-self: flex-start;
   background: var(--gold); color: var(--navy);
   font-family: var(--font-b); font-size: 11px; font-weight: 800;
   letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
-  padding: 6px 16px; border-radius: 100px; flex-shrink: 0;
+  padding: 8px 18px; border-radius: 100px;
   transition: all 0.2s;
   white-space: nowrap;
 }
-.announce-cta:hover { background: var(--gold-light); transform: scale(1.03); }
+.announce-cta:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245,197,24,0.35);
+}
 
 .announce-close {
+  position: absolute;
+  top: 8px; right: 10px;
+  width: 24px; height: 24px;
   background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 14px; padding: 4px 6px;
-  flex-shrink: 0; line-height: 1; border-radius: 4px;
-  transition: color 0.2s;
+  color: var(--muted); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
-.announce-close:hover { color: var(--white); }
+.announce-close:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+}
 
-@media (max-width: 480px) {
-  #announceBar { gap: 8px; padding: 8px 12px; }
+@keyframes announceSlideIn {
+  from { opacity: 0; transform: translateX(-24px) translateY(12px); }
+  to   { opacity: 1; transform: translateX(0)     translateY(0); }
+}
+
+@media (max-width: 600px) {
+  #announceBar {
+    left: 16px;
+    right: 88px;       /* deja espacio a los botones sociales (derecha) */
+    bottom: 20px;
+    max-width: none;
+    padding: 16px 32px 14px 16px;
+  }
   .announce-msg { font-size: 12px; }
+  .announce-cta { font-size: 10px; padding: 7px 14px; }
 }
 
 /* ══════════════════════════════════════════════════
