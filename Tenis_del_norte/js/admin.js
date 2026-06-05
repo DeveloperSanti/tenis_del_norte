@@ -295,7 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
       <div class="zapato-row" data-id="${z.id}">
         <img class="zapato-thumb" src="${imgSrc}" alt="${z.marca}"
-             onerror="this.src='${fallbackSVG}'"/>
+             loading="lazy" decoding="async" width="52" height="52"
+             onerror="this.onerror=null;this.src='${fallbackSVG}'"/>
         <div class="zapato-info">
           <div class="z-top">
             <span class="z-marca">${z.marca}</span>
