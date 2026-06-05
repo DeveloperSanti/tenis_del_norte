@@ -41,20 +41,23 @@ RewriteRule ^(.+?)/?$ $1.html [L]
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png  "access plus 1 year"
     ExpiresByType image/x-icon "access plus 1 year"
-    # CSS y JS: 1 semana
-    ExpiresByType text/css        "access plus 7 days"
-    ExpiresByType application/javascript "access plus 7 days"
     # Fuentes
     ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Cache-Control para assets estáticos en /uploads y /assets
+    # Imágenes y fuentes: nombres únicos → caché larga y agresiva
     <FilesMatch "\.(webp|jpe?g|png|ico|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+    # CSS y JS: el navegador SIEMPRE revalida (304 si no cambió).
+    # Así cada deploy se ve al instante, sin esperar a que expire la caché.
     <FilesMatch "\.(css|js)$">
-        Header set Cache-Control "public, max-age=604800"
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+    # HTML/PHP: nunca cachear (contenido dinámico)
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "no-cache, must-revalidate"
     </FilesMatch>
 </IfModule>
 
