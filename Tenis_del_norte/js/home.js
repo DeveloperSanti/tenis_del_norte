@@ -18,13 +18,47 @@ function animateCount(id, target, suffix = '') {
   }, 25);
 }
 
+/* ── Aplica campañas activas (misma lógica que catalogo.js) ──
+   Un producto cuenta como "en promo" si tiene promocion=1 individual
+   o si lo cubre una campaña activa. Prioridad: marca > género > global. */
+function applyCampaigns(items, campaigns) {
+  if (!campaigns.length) return items;
+
+  const brandMap  = {};
+  const genderMap = {};
+  let globalCamp  = null;
+  campaigns.forEach(c => {
+    if      (c.scope === 'brand'  && c.marca)  brandMap[c.marca]   = brandMap[c.marca]   || c;
+    else if (c.scope === 'gender' && c.genero) genderMap[c.genero] = genderMap[c.genero] || c;
+    else if (c.scope === 'all'    && !globalCamp) globalCamp = c;
+  });
+
+  return items.map(item => {
+    if (item.promocion == 1 && item.precio_promo) return item;
+    if (!item.precio || item.precio <= 0) return item;
+    const camp = brandMap[item.marca] || genderMap[item.categoria] || globalCamp;
+    if (!camp) return item;
+    return { ...item, promocion: 1 };
+  });
+}
+
 /* ── Cargar estadísticas desde la API ────────────── */
 async function loadStats() {
   try {
-    const res   = await fetch(API_BASE + 'get_zapatos.php');
-    const items = await res.json();
+    const [prodRes, campRes] = await Promise.all([
+      fetch(API_BASE + 'get_zapatos.php'),
+      fetch(API_BASE + 'get_campaigns.php').catch(() => null),
+    ]);
+    const products = await prodRes.json();
 
-    if (!Array.isArray(items)) return;
+    if (!Array.isArray(products)) return;
+
+    let campaigns = [];
+    if (campRes && campRes.ok) {
+      try { campaigns = await campRes.json(); } catch {}
+    }
+
+    const items = applyCampaigns(products, Array.isArray(campaigns) ? campaigns : []);
 
     const totalH = items.filter(z => z.categoria === 'hombre' || z.categoria === 'unisex').length;
     const totalM = items.filter(z => z.categoria === 'mujer'  || z.categoria === 'unisex').length;
