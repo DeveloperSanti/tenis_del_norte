@@ -540,11 +540,95 @@ footer {
 }
 .social-btn.fb:hover { box-shadow: 0 8px 24px rgba(24,119,242,0.55); }
 
+/* Botón Guía de tallas (solo catálogo) */
+.social-btn.size {
+  background: var(--gold);
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.4);
+  border: none; cursor: pointer; padding: 0;
+}
+.social-btn.size:hover { box-shadow: 0 8px 24px rgba(245, 197, 24, 0.55); }
+.social-btn.size svg   { fill: var(--navy); }
+
+/* Tooltip del botón de tallas (solo desktop con hover fino) */
+@media (hover: hover) and (min-width: 901px) {
+  .social-btn.size { position: relative; }
+  .social-btn.size::after {
+    content: attr(data-tooltip);
+    position: absolute; right: calc(100% + 12px); top: 50%;
+    transform: translateY(-50%);
+    background: var(--navy-mid); color: var(--white);
+    font-family: var(--font-b); font-size: 0.78rem; font-weight: 600;
+    white-space: nowrap; padding: 6px 11px; border-radius: 8px;
+    border: 1px solid var(--border); box-shadow: var(--shadow-card);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .social-btn.size:hover::after { opacity: 1; }
+}
+
 /* Más prominentes en móvil */
 @media (max-width: 900px) {
   .social-float { right: 16px; bottom: 20px; gap: 12px; }
   .social-btn   { width: 52px; height: 52px; opacity: 1; }
   .social-btn svg { width: 26px; height: 26px; }
+}
+
+/* ══════════════════════════════════════════════════
+   LIGHTBOX DE IMAGEN — guía de tallas + popup bienvenida
+══════════════════════════════════════════════════ */
+body.modal-open { overflow: hidden; }
+
+.img-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(8, 12, 28, 0.82);
+  backdrop-filter: blur(4px);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.img-modal.open { opacity: 1; visibility: visible; }
+
+.img-modal-box {
+  position: relative;
+  max-width: 92vw; max-height: 92vh;
+  display: flex; align-items: center; justify-content: center;
+  transform: scale(0.96);
+  transition: transform 0.25s ease;
+}
+.img-modal.open .img-modal-box { transform: scale(1); }
+
+.img-modal-img {
+  display: block;
+  max-width: 92vw; max-height: 92vh;
+  width: auto; height: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 10, 0.6);
+}
+
+.img-modal-fallback {
+  color: var(--white); font-family: var(--font-b);
+  background: var(--card-bg); padding: 28px 32px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  text-align: center;
+}
+
+.img-modal-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--gold); color: var(--navy);
+  border: none; cursor: pointer;
+  font-size: 28px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 10, 0.4);
+  transition: transform 0.2s;
+}
+.img-modal-close:hover { transform: scale(1.1); }
+
+@media (max-width: 600px) {
+  .img-modal { padding: 12px; }
+  .img-modal-box, .img-modal-img { max-width: 96vw; max-height: 88vh; }
+  .img-modal-close { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 24px; }
 }
 
 /* ── Infinite scroll spinner ─────────────────────── */

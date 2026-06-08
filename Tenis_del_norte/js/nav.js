@@ -20,6 +20,14 @@ const FB_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
 </svg>`;
 
+/* ── Guía de tallas (solo catálogo) ──────────────── */
+const SIZE_GUIDE_IMG = 'assets/guia-tallas.jpg';  // imagen que abre el botón flotante
+const WELCOME_IMG    = 'assets/bienvenida.jpg';   // popup automático al cargar (1×/sesión)
+
+const SIZE_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h2v8z"/>
+</svg>`;
+
 const LOGO = 'assets/logo.png';
 
 function getActivePage() {
@@ -231,9 +239,20 @@ async function injectAnnouncement() {
 function injectSocialButtons() {
   if (window.location.pathname.includes('/admin')) return;
 
+  const isCatalog = getActivePage() === 'catalogo';
+
+  // El botón de Guía de tallas solo aparece en el catálogo
+  const sizeBtn = isCatalog ? `
+    <button type="button" class="social-btn size" id="sizeGuideBtn"
+            aria-label="Guía de tallas" data-tooltip="Guía de tallas">
+      ${SIZE_SVG}
+    </button>
+  ` : '';
+
   const wrap = document.createElement('div');
   wrap.className = 'social-float';
   wrap.innerHTML = `
+    ${sizeBtn}
     <a href="${FB_URL}" target="_blank" rel="noopener"
        class="social-btn fb" aria-label="Facebook">
       ${FB_SVG}
@@ -244,6 +263,11 @@ function injectSocialButtons() {
     </a>
   `;
   document.body.appendChild(wrap);
+
+  if (isCatalog) {
+    document.getElementById('sizeGuideBtn')
+      ?.addEventListener('click', () => openImageModal(SIZE_GUIDE_IMG, 'Guía de tallas'));
+  }
 }
 
 /* ── Scroll-spy: marca la pestaña según la sección visible ── */
@@ -293,6 +317,82 @@ function initScrollSpy() {
   sections.forEach(s => observer.observe(s.el));
 }
 
+/* ── Lightbox de imagen reutilizable ──────────────── */
+let imageModalEl = null;
+
+function ensureImageModal() {
+  if (imageModalEl) return imageModalEl;
+
+  const ov = document.createElement('div');
+  ov.className = 'img-modal';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.setAttribute('aria-hidden', 'true');
+  ov.innerHTML = `
+    <button type="button" class="img-modal-close" aria-label="Cerrar">&times;</button>
+    <div class="img-modal-box">
+      <img class="img-modal-img" src="" alt=""/>
+      <p class="img-modal-fallback" hidden>Imagen no disponible por el momento.</p>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  // Cerrar: botón ✕ y clic en el fondo (fuera de la imagen)
+  ov.querySelector('.img-modal-close').addEventListener('click', closeImageModal);
+  ov.addEventListener('click', e => { if (e.target === ov) closeImageModal(); });
+
+  imageModalEl = ov;
+  return ov;
+}
+
+function openImageModal(src, alt = '') {
+  const ov  = ensureImageModal();
+  const img = ov.querySelector('.img-modal-img');
+  const fb  = ov.querySelector('.img-modal-fallback');
+
+  // Reinicia estado y maneja imagen rota (placeholder aún sin subir)
+  img.hidden = false;
+  fb.hidden  = true;
+  img.onerror = () => { img.hidden = true; fb.hidden = false; };
+  img.alt = alt;
+  img.src = src;
+
+  ov.classList.add('open');
+  ov.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  document.addEventListener('keydown', onModalKey);
+  ov.querySelector('.img-modal-close').focus();
+}
+
+function closeImageModal() {
+  if (!imageModalEl) return;
+  imageModalEl.classList.remove('open');
+  imageModalEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onModalKey);
+}
+
+function onModalKey(e) {
+  if (e.key === 'Escape') closeImageModal();
+}
+
+/* ── Popup automático de bienvenida (catálogo, 1×/sesión) ── */
+const WELCOME_KEY = 'welcome_popup';
+
+function showWelcomePopup() {
+  if (getActivePage() !== 'catalogo') return;
+  if (sessionStorage.getItem(WELCOME_KEY) === 'shown') return;
+
+  // Precarga: solo mostramos el popup si la imagen existe (evita popup vacío)
+  const pre = new Image();
+  pre.onload = () => {
+    sessionStorage.setItem(WELCOME_KEY, 'shown');
+    openImageModal(WELCOME_IMG, 'Guía de tallas — toca el botón de la regla para verla');
+  };
+  pre.onerror = () => {}; // imagen aún no subida: no hacemos nada
+  pre.src = WELCOME_IMG;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   injectAnnouncement();
   injectNav();
@@ -300,4 +400,5 @@ document.addEventListener('DOMContentLoaded', () => {
   injectSocialButtons();
   initScrollReveal();
   initScrollSpy();
+  showWelcomePopup();
 });
